@@ -43,14 +43,18 @@ const ActivationFunnelChart: React.FC = () => {
   // Custom Bar shape to create a funnel effect
   const CustomFunnelBar = (props: any) => {
     const { x, y, width, height, fill, value } = props;
-    const barWidth = (value / maxValue) * width; // Scale width based on value
-    const offset = (width - barWidth) / 2; // Center the bar
+    // Calculate the scaled width based on the value relative to the max value
+    // We use a base width (e.g., 80% of the full bar width) for the largest bar
+    // and scale others proportionally. This ensures tapering.
+    const baseBarWidth = width * 0.8; // Max width for the largest bar
+    const scaledWidth = (value / maxValue) * baseBarWidth;
+    const offset = (width - scaledWidth) / 2; // Center the bar
 
     return (
       <rect
         x={x + offset}
         y={y}
-        width={barWidth}
+        width={scaledWidth}
         height={height}
         fill={fill}
         rx={4} // Rounded corners for a softer look
@@ -79,6 +83,7 @@ const ActivationFunnelChart: React.FC = () => {
                 bottom: 5,
               }}
               layout="vertical"
+              barCategoryGap="10%" // Add some gap between bars for visual separation
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis type="number" hide />

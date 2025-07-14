@@ -78,6 +78,7 @@ const initialDummyStoreCategories: StoreCategory[] = [
 
 const DashboardPage: React.FC = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [compareDate, setCompareDate] = React.useState<Date | undefined>(undefined); // New state for compare date
   const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>({});
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
   const [selectedStore, setSelectedStore] = React.useState<Store | null>(null);
@@ -94,12 +95,29 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleStoreClick = (store: Store) => {
-    setSelectedStore(store);
+    // Only pass essential details to the dialog
+    setSelectedStore({
+      id: store.id,
+      name: store.name,
+      adminPhone: store.adminPhone,
+      adminEmail: store.adminEmail,
+      gmv: 0, // Dummy values to satisfy interface, not used in dialog
+      conversionRate: '',
+      mrr: '',
+      subscriptionStatus: 'Active',
+      lastLogin: '',
+      dailyLogins: 0,
+      weeklyLogins: 0,
+      exportsScheduled: 0,
+      avgLoginFrequency: '',
+      staffAccounts: 0,
+      creditsInWallet: 0,
+    });
     setIsDetailsDialogOpen(true);
   };
 
   const handleAddCompare = () => {
-    showSuccess("Add compare functionality coming soon!");
+    // This button will now trigger the second calendar popover
   };
 
   const handleToggleBan = (storeId: string) => {
@@ -108,7 +126,7 @@ const DashboardPage: React.FC = () => {
         ...category,
         stores: category.stores.map(store => {
           if (store.id === storeId) {
-            const newStatus = store.subscriptionStatus === 'Banned' ? 'Churned' : 'Banned'; // Toggle between Banned and Churned (or previous status)
+            const newStatus = store.subscriptionStatus === 'Banned' ? 'Active' : 'Banned'; // Toggle between Banned and Active
             showSuccess(`${store.name} has been ${newStatus === 'Banned' ? 'banned' : 'unbanned'}.`);
             return { ...store, subscriptionStatus: newStatus };
           }
@@ -199,9 +217,22 @@ const DashboardPage: React.FC = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" className="w-full sm:w-auto" onClick={handleAddCompare}>
-            <span className="mr-1">+</span> Add compare
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {compareDate ? format(compareDate, "PPP") : <span>Add compare</span>}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={compareDate}
+                onSelect={setCompareDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
