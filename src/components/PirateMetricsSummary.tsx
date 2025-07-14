@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Repeat, TrendingUp, ShoppingCart, Facebook, Truck, Activity, Clock } from "lucide-react";
+import { DollarSign, Users, Repeat, Clock } from "lucide-react"; // Removed TrendingUp, ShoppingCart, Facebook, Truck, Activity
 import { DateRange } from "react-day-picker"; // Import DateRange type
 import { format } from "date-fns"; // Import format for date display
 
@@ -36,8 +36,8 @@ const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, 
 
   const formatDateRange = (range: DateRange | undefined) => {
     if (!range?.from) return "N/A";
-    if (!range.to) return format(range.from, "PPP");
-    return `${format(range.from, "PPP")} - ${format(range.to, "PPP")}`;
+    if (!range.to) return format(range.from, "LLL dd, y");
+    return `${format(range.from, "LLL dd, y")} - ${format(range.to, "LLL dd, y")}`;
   };
 
   return (
@@ -58,12 +58,6 @@ const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, 
           icon={<Users className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
-          title="Activation"
-          value="85% Activated"
-          description="+5% from last month"
-          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricCard
           title="Retention"
           value="92% Retained"
           description="-1.2% from last month"
@@ -74,36 +68,6 @@ const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, 
           value="₹450,000 MRR"
           description="+15% from last month"
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Signed Up"
-          value="1,500 Users"
-          description="+25% this quarter"
-          icon={<Users className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Shopify Integrated"
-          value="1,100 Stores"
-          description="75% of active stores"
-          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Meta Ads Integrated"
-          value="900 Accounts"
-          description="60% of active stores"
-          icon={<Facebook className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Shiprocket Integrated"
-          value="700 Accounts"
-          description="45% of active stores"
-          icon={<Truck className="h-4 w-4 text-muted-foreground" />}
-        />
-        <MetricCard
-          title="Active Today"
-          value="800 Stores"
-          description="65% of total stores"
-          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Daily Logins"

@@ -1,14 +1,14 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResponsiveContainer, Tooltip } from 'recharts';
-import { DateRange } from "react-day-picker"; // Import DateRange type
+import { DateRange } from "react-day-picker";
 
 interface FunnelData {
   name: string;
   value: number;
 }
 
-// Base dummy data
+// Base dummy data for the primary period
 const baseData: FunnelData[] = [
   { name: 'Signed Up', value: 1500 },
   { name: 'Shopify Integrated', value: 1100 },
@@ -16,8 +16,8 @@ const baseData: FunnelData[] = [
   { name: 'Shiprocket Integrated', value: 700 },
 ];
 
-// Dummy data for comparison (slightly different values)
-const compareBaseData: FunnelData[] = [
+// Dummy data for comparison (slightly different values to show interactivity)
+const compareData: FunnelData[] = [
   { name: 'Signed Up', value: 1300 },
   { name: 'Shopify Integrated', value: 950 },
   { name: 'Meta Ads Integrated', value: 750 },
@@ -30,10 +30,8 @@ interface ActivationFunnelChartProps {
 }
 
 const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange, compareDateRange }) => {
-  // Determine which data to use based on whether a comparison range is selected
-  // In a real application, this is where you'd fetch and process actual data
-  // based on dateRange and compareDateRange.
-  const currentData = compareDateRange?.from && compareDateRange.to ? compareBaseData : baseData;
+  // Use compareData if a comparison range is selected, otherwise use baseData
+  const currentData = compareDateRange?.from && compareDateRange.to ? compareData : baseData;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -57,21 +55,21 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
     return null;
   };
 
-  const totalHeight = 300; // Height of the chart area
-  const segmentHeight = totalHeight / currentData.length;
-  const maxWidth = 300; // Max width for the widest part of the funnel
+  const totalWidth = 600; // Total width of the chart area
+  const segmentWidth = totalWidth / currentData.length;
+  const maxHeight = 150; // Max height for the widest part of the funnel (at the start)
 
-  // Calculate the width for each segment, tapering down
+  // Calculate the height for each segment, tapering down
   const funnelSegments = currentData.map((item, index) => {
-    const topWidth = (item.value / currentData[0].value) * maxWidth;
-    const bottomWidth = (index < currentData.length - 1 ? (currentData[index + 1].value / currentData[0].value) * maxWidth : topWidth); // Last segment's bottom width is its top width
+    const topHeight = (item.value / currentData[0].value) * maxHeight;
+    const bottomHeight = (index < currentData.length - 1 ? (currentData[index + 1].value / currentData[0].value) * maxHeight : topHeight);
     
     return {
       ...item,
-      topWidth,
-      bottomWidth,
-      y: index * segmentHeight,
-      height: segmentHeight,
+      topHeight,
+      bottomHeight,
+      x: index * segmentWidth,
+      width: segmentWidth,
     };
   });
 
@@ -84,28 +82,28 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[300px] flex justify-center items-center">
+        <div className="h-[200px] flex justify-center items-center"> {/* Adjusted height for horizontal layout */}
           <ResponsiveContainer width="100%" height="100%">
-            <svg width="100%" height="100%" viewBox={`0 0 ${maxWidth + 100} ${totalHeight}`}>
-              <g transform={`translate(${(maxWidth + 100 - maxWidth) / 2}, 0)`}> {/* Center the funnel */}
+            <svg width="100%" height="100%" viewBox={`0 0 ${totalWidth} ${maxHeight + 50}`}> {/* Adjusted viewBox */}
+              <g transform={`translate(0, ${(maxHeight + 50 - maxHeight) / 2})`}> {/* Center the funnel vertically */}
                 {funnelSegments.map((segment, index) => {
-                  const x1 = (maxWidth - segment.topWidth) / 2;
-                  const x2 = (maxWidth + segment.topWidth) / 2;
-                  const x3 = (maxWidth + segment.bottomWidth) / 2;
-                  const x4 = (maxWidth - segment.bottomWidth) / 2;
-                  const y1 = segment.y;
-                  const y2 = segment.y + segment.height;
+                  const y1 = (maxHeight - segment.topHeight) / 2;
+                  const y2 = (maxHeight + segment.topHeight) / 2;
+                  const y3 = (maxHeight + segment.bottomHeight) / 2;
+                  const y4 = (maxHeight - segment.bottomHeight) / 2;
+                  const x1 = segment.x;
+                  const x2 = segment.x + segment.width;
 
                   return (
                     <React.Fragment key={segment.name}>
                       <path
-                        d={`M ${x1} ${y1} L ${x2} ${y1} L ${x3} ${y2} L ${x4} ${y2} Z`}
+                        d={`M ${x1} ${y1} L ${x2} ${y4} L ${x2} ${y3} L ${x1} ${y2} Z`}
                         fill="hsl(var(--primary))"
                         opacity={1 - (index * 0.1)} // Slight opacity change for depth
                       />
                       <text
-                        x={maxWidth / 2}
-                        y={segment.y + segment.height / 2}
+                        x={segment.x + segment.width / 2}
+                        y={maxHeight / 2}
                         textAnchor="middle"
                         dominantBaseline="middle"
                         fill="hsl(var(--primary-foreground))"
@@ -117,7 +115,7 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
                   );
                 })}
               </g>
-              <Tooltip content={<CustomTooltip />} /> {/* Tooltip needs to be outside SVG for Recharts to render it */}
+              <Tooltip content={<CustomTooltip />} />
             </svg>
           </ResponsiveContainer>
         </div>
