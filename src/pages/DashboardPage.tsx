@@ -23,6 +23,10 @@ interface Store {
   conversionRate: string; // e.g., "2.5%"
   mrr: string; // Monthly Recurring Revenue
   subscriptionStatus: 'Free Trial' | 'Active' | 'Active Daily' | 'Churned';
+  lastLogin: string; // e.g., "2 days ago"
+  dailyLogins: number;
+  weeklyLogins: number;
+  exportsScheduled: number;
 }
 
 interface StoreCategory {
@@ -38,9 +42,9 @@ const dummyStoreCategories: StoreCategory[] = [
     name: "D2C Brands",
     totalStores: 10,
     stores: [
-      { id: "d2c-1", name: "Fashion Nova", gmv: 150000, conversionRate: "3.2%", mrr: "₹5,000", subscriptionStatus: "Active" },
-      { id: "d2c-2", name: "Beauty Bliss", gmv: 35000, conversionRate: "2.8%", mrr: "₹1,500", subscriptionStatus: "Active Daily" },
-      { id: "d2c-3", name: "Home Decor Hub", gmv: 80000, conversionRate: "4.1%", mrr: "₹3,000", subscriptionStatus: "Active" },
+      { id: "d2c-1", name: "Fashion Nova", gmv: 150000, conversionRate: "3.2%", mrr: "₹5,000", subscriptionStatus: "Active", lastLogin: "2 days ago", dailyLogins: 15, weeklyLogins: 90, exportsScheduled: 5 },
+      { id: "d2c-2", name: "Beauty Bliss", gmv: 35000, conversionRate: "2.8%", mrr: "₹1,500", subscriptionStatus: "Active Daily", lastLogin: "today", dailyLogins: 20, weeklyLogins: 120, exportsScheduled: 2 },
+      { id: "d2c-3", name: "Home Decor Hub", gmv: 80000, conversionRate: "4.1%", mrr: "₹3,000", subscriptionStatus: "Active", lastLogin: "5 hours ago", dailyLogins: 10, weeklyLogins: 70, exportsScheduled: 8 },
     ],
   },
   {
@@ -48,8 +52,8 @@ const dummyStoreCategories: StoreCategory[] = [
     name: "Omni-Channel Retailers",
     totalStores: 5,
     stores: [
-      { id: "oc-1", name: "Global Gadgets", gmv: 200000, conversionRate: "1.5%", mrr: "₹8,000", subscriptionStatus: "Active" },
-      { id: "oc-2", name: "Urban Outfitters", gmv: 75000, conversionRate: "2.0%", mrr: "₹2,500", subscriptionStatus: "Free Trial" },
+      { id: "oc-1", name: "Global Gadgets", gmv: 200000, conversionRate: "1.5%", mrr: "₹8,000", subscriptionStatus: "Active", lastLogin: "1 day ago", dailyLogins: 25, weeklyLogins: 150, exportsScheduled: 10 },
+      { id: "oc-2", name: "Urban Outfitters", gmv: 75000, conversionRate: "2.0%", mrr: "₹2,500", subscriptionStatus: "Free Trial", lastLogin: "3 days ago", dailyLogins: 5, weeklyLogins: 30, exportsScheduled: 1 },
     ],
   },
   {
@@ -57,8 +61,8 @@ const dummyStoreCategories: StoreCategory[] = [
     name: "Dropshippers",
     totalStores: 5,
     stores: [
-      { id: "ds-1", name: "Trendy Finds", gmv: 12000, conversionRate: "1.8%", mrr: "₹500", subscriptionStatus: "Active Daily" },
-      { id: "ds-2", name: "Niche Nook", gmv: 8000, conversionRate: "2.1%", mrr: "₹300", subscriptionStatus: "Churned" },
+      { id: "ds-1", name: "Trendy Finds", gmv: 12000, conversionRate: "1.8%", mrr: "₹500", subscriptionStatus: "Active Daily", lastLogin: "today", dailyLogins: 8, weeklyLogins: 50, exportsScheduled: 3 },
+      { id: "ds-2", name: "Niche Nook", gmv: 8000, conversionRate: "2.1%", mrr: "₹300", subscriptionStatus: "Churned", lastLogin: "10 days ago", dailyLogins: 0, weeklyLogins: 0, exportsScheduled: 0 },
     ],
   },
 ];
@@ -186,6 +190,10 @@ const DashboardPage: React.FC = () => {
                 <TableHead>Conversion Rate</TableHead>
                 <TableHead>MRR</TableHead>
                 <TableHead>Subscription Status</TableHead>
+                <TableHead>Last Login</TableHead>
+                <TableHead>Daily Logins</TableHead>
+                <TableHead>Weekly Logins</TableHead>
+                <TableHead>Exports Scheduled</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -235,6 +243,10 @@ const DashboardPage: React.FC = () => {
                                         {store.subscriptionStatus}
                                       </Badge>
                                     </TableCell>
+                                    <TableCell>{store.lastLogin}</TableCell>
+                                    <TableCell>{store.dailyLogins}</TableCell>
+                                    <TableCell>{store.weeklyLogins}</TableCell>
+                                    <TableCell>{store.exportsScheduled}</TableCell>
                                   </TableRow>
                                 ))}
                               </TableBody>
@@ -250,6 +262,10 @@ const DashboardPage: React.FC = () => {
                     <TableCell>
                       <Badge variant="secondary">Total {category.totalStores}</Badge>
                     </TableCell>
+                    <TableCell>N/A</TableCell> {/* For Last Login */}
+                    <TableCell>N/A</TableCell> {/* For Daily Logins */}
+                    <TableCell>N/A</TableCell> {/* For Weekly Logins */}
+                    <TableCell>N/A</TableCell> {/* For Exports Scheduled */}
                   </TableRow>
                 </React.Fragment>
               ))}
