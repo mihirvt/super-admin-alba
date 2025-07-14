@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ResponsiveContainer, Tooltip } from 'recharts';
+import { DateRange } from "react-day-picker"; // Import DateRange type
 
 interface FunnelData {
   name: string;
@@ -14,7 +15,18 @@ const data: FunnelData[] = [
   { name: 'Shiprocket Integrated', value: 700 },
 ];
 
-const ActivationFunnelChart: React.FC = () => {
+interface ActivationFunnelChartProps {
+  dateRange: DateRange | undefined;
+  compareDateRange: DateRange | undefined;
+}
+
+const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange, compareDateRange }) => {
+  // In a real application, you would use dateRange and compareDateRange
+  // to fetch and filter the actual funnel data from your backend.
+  // For now, we are using static dummy data.
+  console.log("Funnel Chart - Primary Date Range:", dateRange);
+  console.log("Funnel Chart - Compare Date Range:", compareDateRange);
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const value = payload[0].value;

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, Repeat, TrendingUp, ShoppingCart, Facebook, Truck, Activity, Clock } from "lucide-react";
 import { DateRange } from "react-day-picker"; // Import DateRange type
+import { format } from "date-fns"; // Import format for date display
 
 interface MetricCardProps {
   title: string;
@@ -33,74 +34,90 @@ const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, 
   // A developer can use dateRange and compareDateRange here to fetch/filter actual data.
   // For now, the dummy data remains static.
 
+  const formatDateRange = (range: DateRange | undefined) => {
+    if (!range?.from) return "N/A";
+    if (!range.to) return format(range.from, "PPP");
+    return `${format(range.from, "PPP")} - ${format(range.to, "PPP")}`;
+  };
+
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mb-8">
-      <MetricCard
-        title="Acquisition"
-        value="1,250 New Stores"
-        description="+20.1% from last month"
-        icon={<Users className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Activation"
-        value="85% Activated"
-        description="+5% from last month"
-        icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Retention"
-        value="92% Retained"
-        description="-1.2% from last month"
-        icon={<Repeat className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Revenue"
-        value="₹450,000 MRR"
-        description="+15% from last month"
-        icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Signed Up"
-        value="1,500 Users"
-        description="+25% this quarter"
-        icon={<Users className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Shopify Integrated"
-        value="1,100 Stores"
-        description="75% of active stores"
-        icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Meta Ads Integrated"
-        value="900 Accounts"
-        description="60% of active stores"
-        icon={<Facebook className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Shiprocket Integrated"
-        value="700 Accounts"
-        description="45% of active stores"
-        icon={<Truck className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Active Today"
-        value="800 Stores"
-        description="65% of total stores"
-        icon={<Activity className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Daily Logins"
-        value="1,200"
-        description="Avg. 1.5 logins/store"
-        icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
-        title="Weekly Logins"
-        value="7,500"
-        description="Avg. 9.3 logins/store"
-        icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-      />
+    <div className="mb-8">
+      <div className="flex flex-wrap gap-4 mb-4 text-sm text-muted-foreground">
+        <p>
+          <span className="font-semibold">Primary Period:</span> {formatDateRange(dateRange)}
+        </p>
+        <p>
+          <span className="font-semibold">Comparison Period:</span> {formatDateRange(compareDateRange)}
+        </p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <MetricCard
+          title="Acquisition"
+          value="1,250 New Stores"
+          description="+20.1% from last month"
+          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Activation"
+          value="85% Activated"
+          description="+5% from last month"
+          icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Retention"
+          value="92% Retained"
+          description="-1.2% from last month"
+          icon={<Repeat className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Revenue"
+          value="₹450,000 MRR"
+          description="+15% from last month"
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Signed Up"
+          value="1,500 Users"
+          description="+25% this quarter"
+          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Shopify Integrated"
+          value="1,100 Stores"
+          description="75% of active stores"
+          icon={<ShoppingCart className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Meta Ads Integrated"
+          value="900 Accounts"
+          description="60% of active stores"
+          icon={<Facebook className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Shiprocket Integrated"
+          value="700 Accounts"
+          description="45% of active stores"
+          icon={<Truck className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Active Today"
+          value="800 Stores"
+          description="65% of total stores"
+          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Daily Logins"
+          value="1,200"
+          description="Avg. 1.5 logins/store"
+          icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Weekly Logins"
+          value="7,500"
+          description="Avg. 9.3 logins/store"
+          icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+        />
+      </div>
     </div>
   );
 };

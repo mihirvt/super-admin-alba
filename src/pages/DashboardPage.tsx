@@ -276,7 +276,7 @@ const DashboardPage: React.FC = () => {
       <PirateMetricsSummary dateRange={dateRange} compareDateRange={compareDateRange} />
 
       {/* Activation Funnel Chart */}
-      <ActivationFunnelChart />
+      <ActivationFunnelChart dateRange={dateRange} compareDateRange={compareDateRange} />
 
       {/* Category Section */}
       <Card className="bg-card border-border shadow-lg">
