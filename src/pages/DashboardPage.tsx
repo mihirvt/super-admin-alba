@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent }g from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"; // Removed the extra 'g'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -131,7 +131,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Navigation and Filters */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
         <div className="flex flex-wrap gap-2">
           <Tabs defaultValue="all" className="w-full lg:w-auto">
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-2 h-auto">
