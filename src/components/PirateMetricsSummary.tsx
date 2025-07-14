@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Repeat, Clock } from "lucide-react"; // Removed TrendingUp, ShoppingCart, Facebook, Truck, Activity
+import { DollarSign, Users, Repeat, Clock, Activity, Upload } from "lucide-react"; // Added Activity and Upload icons
 import { DateRange } from "react-day-picker"; // Import DateRange type
 import { format } from "date-fns"; // Import format for date display
 
@@ -80,6 +80,18 @@ const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, 
           value="7,500"
           description="Avg. 9.3 logins/store"
           icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Exports Scheduled"
+          value="350"
+          description="+5% from last month"
+          icon={<Upload className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Avg. Login Freq."
+          value="3 times/week"
+          description="Consistent engagement"
+          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
         />
       </div>
     </div>
