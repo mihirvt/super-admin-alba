@@ -92,8 +92,8 @@ const DashboardPage: React.FC = () => {
     setIsDetailsDialogOpen(true);
   };
 
-  const handleEditClick = () => {
-    // This will be handled by AlertDialog now
+  const handleAddCompare = () => {
+    showSuccess("Add compare functionality coming soon!");
   };
 
   const handleBanUser = (storeName: string) => {
@@ -101,11 +101,9 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleGiveCredits = (storeName: string) => {
-    showSuccess(`Giving free credits to ${storeName}...`);
-  };
-
-  const handleAddCompare = () => {
-    showSuccess("Add compare functionality coming soon!");
+    // Simulate adding credits
+    const creditsToAdd = 100; // Example amount
+    showSuccess(`${creditsToAdd} credits added to ${storeName}'s wallet!`);
   };
 
   return (
@@ -318,7 +316,7 @@ const DashboardPage: React.FC = () => {
                                         </AlertDialogFooter>
                                       </AlertDialogContent>
                                     </AlertDialog>
-                                    <Button size="sm" onClick={() => handleGiveCredits(store.name)}>Credits</Button>
+                                    <Button size="sm" onClick={() => handleGiveCredits(store.name)} className="ml-2">Credits</Button> {/* Added ml-2 for spacing */}
                                   </TableCell>
                                 </TableRow>
                               ))}

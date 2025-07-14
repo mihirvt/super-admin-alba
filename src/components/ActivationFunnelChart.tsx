@@ -15,6 +15,28 @@ const data: FunnelData[] = [
 ];
 
 const ActivationFunnelChart: React.FC = () => {
+  const getConversionRate = (index: number) => {
+    if (index >= data.length - 1) return null; // No next step
+    const current = data[index].value;
+    const next = data[index + 1].value;
+    return ((next / current) * 100).toFixed(1);
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const currentIndex = data.findIndex(item => item.name === label);
+      const conversionRate = getConversionRate(currentIndex);
+      return (
+        <div className="bg-popover p-2 border border-border rounded-md shadow-md text-popover-foreground">
+          <p className="font-bold">{label}</p>
+          <p>Value: {payload[0].value}</p>
+          {conversionRate && <p>Conversion to next step: {conversionRate}%</p>}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <Card className="bg-card border-border shadow-lg mb-8">
       <CardHeader>
@@ -39,16 +61,12 @@ const ActivationFunnelChart: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis type="number" hide />
               <YAxis type="category" dataKey="name" width={120} tickLine={false} axisLine={false} />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} /> {/* Use custom tooltip */}
               <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="mt-4 text-sm text-muted-foreground">
-          <p>Conversion from Signed Up to Shopify Integrated: {((1100 / 1500) * 100).toFixed(1)}%</p>
-          <p>Conversion from Shopify Integrated to Meta Ads Integrated: {((900 / 1100) * 100).toFixed(1)}%</p>
-          <p>Conversion from Meta Ads Integrated to Shiprocket Integrated: {((700 / 900) * 100).toFixed(1)}%</p>
-        </div>
+        {/* Removed the conversion rate paragraphs */}
       </CardContent>
     </Card>
   );
