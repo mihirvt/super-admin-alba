@@ -37,6 +37,28 @@ const ActivationFunnelChart: React.FC = () => {
     return null;
   };
 
+  // Calculate max value for scaling the funnel bars
+  const maxValue = Math.max(...data.map(item => item.value));
+
+  // Custom Bar shape to create a funnel effect
+  const CustomFunnelBar = (props: any) => {
+    const { x, y, width, height, fill, value } = props;
+    const barWidth = (value / maxValue) * width; // Scale width based on value
+    const offset = (width - barWidth) / 2; // Center the bar
+
+    return (
+      <rect
+        x={x + offset}
+        y={y}
+        width={barWidth}
+        height={height}
+        fill={fill}
+        rx={4} // Rounded corners for a softer look
+        ry={4}
+      />
+    );
+  };
+
   return (
     <Card className="bg-card border-border shadow-lg mb-8">
       <CardHeader>
@@ -61,12 +83,11 @@ const ActivationFunnelChart: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis type="number" hide />
               <YAxis type="category" dataKey="name" width={120} tickLine={false} axisLine={false} />
-              <Tooltip content={<CustomTooltip />} /> {/* Use custom tooltip */}
-              <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" fill="hsl(var(--primary))" shape={<CustomFunnelBar />} />
             </BarChart>
           </ResponsiveContainer>
         </div>
-        {/* Removed the conversion rate paragraphs */}
       </CardContent>
     </Card>
   );

@@ -18,6 +18,7 @@ import { showSuccess } from "@/utils/toast"; // Import toast utility
 import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
 import StoreDetailsDialog from "@/components/StoreDetailsDialog"; // Import StoreDetailsDialog
 import ActivationFunnelChart from "@/components/ActivationFunnelChart"; // Import ActivationFunnelChart
+import AddCreditsDialog from "@/components/AddCreditsDialog"; // Import AddCreditsDialog
 
 interface Store {
   id: string;
@@ -25,7 +26,7 @@ interface Store {
   gmv: number; // Gross Merchandise Value
   conversionRate: string; // e.g., "2.5%"
   mrr: string; // Monthly Recurring Revenue
-  subscriptionStatus: 'Free Trial' | 'Active' | 'Active Daily' | 'Churned';
+  subscriptionStatus: 'Free Trial' | 'Active' | 'Active Daily' | 'Churned' | 'Banned'; // Added 'Banned' status
   lastLogin: string; // e.g., "2 days ago"
   dailyLogins: number;
   weeklyLogins: number;
@@ -34,6 +35,7 @@ interface Store {
   staffAccounts: number;
   adminPhone: string;
   adminEmail: string;
+  creditsInWallet: number; // New field for credits
 }
 
 interface StoreCategory {
@@ -43,15 +45,15 @@ interface StoreCategory {
   stores: Store[];
 }
 
-const dummyStoreCategories: StoreCategory[] = [
+const initialDummyStoreCategories: StoreCategory[] = [
   {
     id: "d2c",
     name: "D2C Brands",
     totalStores: 10,
     stores: [
-      { id: "d2c-1", name: "Fashion Nova", gmv: 150000, conversionRate: "3.2%", mrr: "₹5,000", subscriptionStatus: "Active", lastLogin: "2 days ago", dailyLogins: 15, weeklyLogins: 90, exportsScheduled: 5, avgLoginFrequency: "5 times/day", staffAccounts: 10, adminPhone: "+91-9876543210", adminEmail: "fashion.admin@example.com" },
-      { id: "d2c-2", name: "Beauty Bliss", gmv: 35000, conversionRate: "2.8%", mrr: "₹1,500", subscriptionStatus: "Active Daily", lastLogin: "today", dailyLogins: 20, weeklyLogins: 120, exportsScheduled: 2, avgLoginFrequency: "7 times/day", staffAccounts: 5, adminPhone: "+91-9988776655", adminEmail: "beauty.admin@example.com" },
-      { id: "d2c-3", name: "Home Decor Hub", gmv: 80000, conversionRate: "4.1%", mrr: "₹3,000", subscriptionStatus: "Active", lastLogin: "5 hours ago", dailyLogins: 10, weeklyLogins: 70, exportsScheduled: 8, avgLoginFrequency: "3 times/day", staffAccounts: 8, adminPhone: "+91-9123456789", adminEmail: "homedecor.admin@example.com" },
+      { id: "d2c-1", name: "Fashion Nova", gmv: 150000, conversionRate: "3.2%", mrr: "₹5,000", subscriptionStatus: "Active", lastLogin: "2 days ago", dailyLogins: 15, weeklyLogins: 90, exportsScheduled: 5, avgLoginFrequency: "5 times/day", staffAccounts: 10, adminPhone: "+91-9876543210", adminEmail: "fashion.admin@example.com", creditsInWallet: 500 },
+      { id: "d2c-2", name: "Beauty Bliss", gmv: 35000, conversionRate: "2.8%", mrr: "₹1,500", subscriptionStatus: "Active Daily", lastLogin: "today", dailyLogins: 20, weeklyLogins: 120, exportsScheduled: 2, avgLoginFrequency: "7 times/day", staffAccounts: 5, adminPhone: "+91-9988776655", adminEmail: "beauty.admin@example.com", creditsInWallet: 200 },
+      { id: "d2c-3", name: "Home Decor Hub", gmv: 80000, conversionRate: "4.1%", mrr: "₹3,000", subscriptionStatus: "Active", lastLogin: "5 hours ago", dailyLogins: 10, weeklyLogins: 70, exportsScheduled: 8, avgLoginFrequency: "3 times/day", staffAccounts: 8, adminPhone: "+91-9123456789", adminEmail: "homedecor.admin@example.com", creditsInWallet: 1000 },
     ],
   },
   {
@@ -59,8 +61,8 @@ const dummyStoreCategories: StoreCategory[] = [
     name: "Omni-Channel Retailers",
     totalStores: 5,
     stores: [
-      { id: "oc-1", name: "Global Gadgets", gmv: 200000, conversionRate: "1.5%", mrr: "₹8,000", subscriptionStatus: "Active", lastLogin: "1 day ago", dailyLogins: 25, weeklyLogins: 150, exportsScheduled: 10, avgLoginFrequency: "6 times/day", staffAccounts: 12, adminPhone: "+91-9000011111", adminEmail: "gadgets.admin@example.com" },
-      { id: "oc-2", name: "Urban Outfitters", gmv: 75000, conversionRate: "2.0%", mrr: "₹2,500", subscriptionStatus: "Free Trial", lastLogin: "3 days ago", dailyLogins: 5, weeklyLogins: 30, exportsScheduled: 1, avgLoginFrequency: "2 times/day", staffAccounts: 3, adminPhone: "+91-9765432109", adminEmail: "urban.admin@example.com" },
+      { id: "oc-1", name: "Global Gadgets", gmv: 200000, conversionRate: "1.5%", mrr: "₹8,000", subscriptionStatus: "Active", lastLogin: "1 day ago", dailyLogins: 25, weeklyLogins: 150, exportsScheduled: 10, avgLoginFrequency: "6 times/day", staffAccounts: 12, adminPhone: "+91-9000011111", adminEmail: "gadgets.admin@example.com", creditsInWallet: 750 },
+      { id: "oc-2", name: "Urban Outfitters", gmv: 75000, conversionRate: "2.0%", mrr: "₹2,500", subscriptionStatus: "Free Trial", lastLogin: "3 days ago", dailyLogins: 5, weeklyLogins: 30, exportsScheduled: 1, avgLoginFrequency: "2 times/day", staffAccounts: 3, adminPhone: "+91-9765432109", adminEmail: "urban.admin@example.com", creditsInWallet: 50 },
     ],
   },
   {
@@ -68,8 +70,8 @@ const dummyStoreCategories: StoreCategory[] = [
     name: "Dropshippers",
     totalStores: 5,
     stores: [
-      { id: "ds-1", name: "Trendy Finds", gmv: 12000, conversionRate: "1.8%", mrr: "₹500", subscriptionStatus: "Active Daily", lastLogin: "today", dailyLogins: 8, weeklyLogins: 50, exportsScheduled: 3, avgLoginFrequency: "4 times/day", staffAccounts: 2, adminPhone: "+91-9555544444", adminEmail: "trendy.admin@example.com" },
-      { id: "ds-2", name: "Niche Nook", gmv: 8000, conversionRate: "2.1%", mrr: "₹300", subscriptionStatus: "Churned", lastLogin: "10 days ago", dailyLogins: 0, weeklyLogins: 0, exportsScheduled: 0, avgLoginFrequency: "0 times/day", staffAccounts: 1, adminPhone: "+91-9333322222", adminEmail: "niche.admin@example.com" },
+      { id: "ds-1", name: "Trendy Finds", gmv: 12000, conversionRate: "1.8%", mrr: "₹500", subscriptionStatus: "Active Daily", lastLogin: "today", dailyLogins: 8, weeklyLogins: 50, exportsScheduled: 3, avgLoginFrequency: "4 times/day", staffAccounts: 2, adminPhone: "+91-9555544444", adminEmail: "trendy.admin@example.com", creditsInWallet: 150 },
+      { id: "ds-2", name: "Niche Nook", gmv: 8000, conversionRate: "2.1%", mrr: "₹300", subscriptionStatus: "Churned", lastLogin: "10 days ago", dailyLogins: 0, weeklyLogins: 0, exportsScheduled: 0, avgLoginFrequency: "0 times/day", staffAccounts: 1, adminPhone: "+91-9333322222", adminEmail: "niche.admin@example.com", creditsInWallet: 0 },
     ],
   },
 ];
@@ -79,6 +81,10 @@ const DashboardPage: React.FC = () => {
   const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>({});
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
   const [selectedStore, setSelectedStore] = React.useState<Store | null>(null);
+  const [isAddCreditsDialogOpen, setIsAddCreditsDialogOpen] = React.useState(false);
+  const [storeToCredit, setStoreToCredit] = React.useState<{ id: string; name: string } | null>(null);
+  const [storeCategories, setStoreCategories] = React.useState<StoreCategory[]>(initialDummyStoreCategories);
+
 
   const toggleCategory = (categoryId: string) => {
     setOpenCategories(prev => ({
@@ -96,14 +102,40 @@ const DashboardPage: React.FC = () => {
     showSuccess("Add compare functionality coming soon!");
   };
 
-  const handleBanUser = (storeName: string) => {
-    showSuccess(`User for ${storeName} has been banned.`);
+  const handleToggleBan = (storeId: string) => {
+    setStoreCategories(prevCategories =>
+      prevCategories.map(category => ({
+        ...category,
+        stores: category.stores.map(store => {
+          if (store.id === storeId) {
+            const newStatus = store.subscriptionStatus === 'Banned' ? 'Churned' : 'Banned'; // Toggle between Banned and Churned (or previous status)
+            showSuccess(`${store.name} has been ${newStatus === 'Banned' ? 'banned' : 'unbanned'}.`);
+            return { ...store, subscriptionStatus: newStatus };
+          }
+          return store;
+        }),
+      }))
+    );
   };
 
-  const handleGiveCredits = (storeName: string) => {
-    // Simulate adding credits
-    const creditsToAdd = 100; // Example amount
-    showSuccess(`${creditsToAdd} credits added to ${storeName}'s wallet!`);
+  const handleOpenAddCreditsDialog = (storeId: string, storeName: string) => {
+    setStoreToCredit({ id: storeId, name: storeName });
+    setIsAddCreditsDialogOpen(true);
+  };
+
+  const handleAddCredits = (storeId: string, amount: number) => {
+    setStoreCategories(prevCategories =>
+      prevCategories.map(category => ({
+        ...category,
+        stores: category.stores.map(store => {
+          if (store.id === storeId) {
+            return { ...store, creditsInWallet: store.creditsInWallet + amount };
+          }
+          return store;
+        }),
+      }))
+    );
+    showSuccess(`Successfully added ${amount} credits to ${storeToCredit?.name}'s wallet!`);
   };
 
   return (
@@ -214,7 +246,7 @@ const DashboardPage: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[150px]">Store Category / Store</TableHead> {/* Adjusted width */}
+                <TableHead className="w-[150px]">Store Category / Store</TableHead>
                 <TableHead className="w-[100px]">Total Stores</TableHead>
                 <TableHead className="w-[100px]">GMV</TableHead>
                 <TableHead className="w-[120px]">Conversion Rate</TableHead>
@@ -225,11 +257,12 @@ const DashboardPage: React.FC = () => {
                 <TableHead className="w-[100px]">Weekly Logins</TableHead>
                 <TableHead className="w-[120px]">Exports Scheduled</TableHead>
                 <TableHead className="w-[120px]">Avg. Login Freq.</TableHead>
+                <TableHead className="w-[100px]">Credits</TableHead> {/* New Credits column */}
                 <TableHead className="text-right w-[150px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {dummyStoreCategories.map((category) => (
+              {storeCategories.map((category) => (
                 <React.Fragment key={category.id}>
                   <Collapsible
                     open={openCategories[category.id]}
@@ -257,21 +290,22 @@ const DashboardPage: React.FC = () => {
                       <TableCell>N/A</TableCell>
                       <TableCell>N/A</TableCell>
                       <TableCell>N/A</TableCell>
+                      <TableCell>N/A</TableCell> {/* N/A for category total credits */}
                       <TableCell className="text-right"></TableCell>
                     </TableRow>
                     <CollapsibleContent asChild>
                       <TableRow>
-                        <TableCell colSpan={12} className="p-0">
+                        <TableCell colSpan={13} className="p-0"> {/* Adjusted colSpan */}
                           <Table className="w-full">
                             <TableBody>
                               {category.stores.map((store) => (
                                 <TableRow key={store.id} className="bg-muted/20">
-                                  <TableCell className="pl-8 w-[150px]"> {/* Match parent column width */}
+                                  <TableCell className="pl-8 w-[150px]">
                                     <Button variant="link" onClick={() => handleStoreClick(store)} className="p-0 h-auto text-left">
                                       {store.name}
                                     </Button>
                                   </TableCell>
-                                  <TableCell className="w-[100px]"></TableCell> {/* Empty for Total Stores */}
+                                  <TableCell className="w-[100px]"></TableCell>
                                   <TableCell className="w-[100px]">₹{store.gmv.toLocaleString()}</TableCell>
                                   <TableCell className="w-[120px]">{store.conversionRate}</TableCell>
                                   <TableCell className="w-[100px]">{store.mrr}</TableCell>
@@ -282,6 +316,8 @@ const DashboardPage: React.FC = () => {
                                           ? "default"
                                           : store.subscriptionStatus === "Active Daily"
                                           ? "secondary"
+                                          : store.subscriptionStatus === "Banned"
+                                          ? "destructive" // Use destructive for banned
                                           : "outline"
                                       }
                                       className={cn(
@@ -298,25 +334,28 @@ const DashboardPage: React.FC = () => {
                                   <TableCell className="w-[100px]">{store.weeklyLogins}</TableCell>
                                   <TableCell className="w-[120px]">{store.exportsScheduled}</TableCell>
                                   <TableCell className="w-[120px]">{store.avgLoginFrequency}</TableCell>
-                                  <TableCell className="text-right w-[150px]">
+                                  <TableCell className="w-[100px]">{store.creditsInWallet}</TableCell> {/* Display credits */}
+                                  <TableCell className="text-right w-[150px] flex justify-end items-center gap-2"> {/* Added gap-2 for spacing */}
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
-                                        <Button variant="outline" size="sm" className="mr-2">Ban</Button>
+                                        <Button variant="outline" size="sm">
+                                          {store.subscriptionStatus === 'Banned' ? 'Unban' : 'Ban'}
+                                        </Button>
                                       </AlertDialogTrigger>
                                       <AlertDialogContent>
                                         <AlertDialogHeader>
                                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                           <AlertDialogDescription>
-                                            This action cannot be undone. This will permanently ban {store.name} from accessing the platform.
+                                            This action will {store.subscriptionStatus === 'Banned' ? 'unban' : 'permanently ban'} {store.name} from accessing the platform.
                                           </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
                                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleBanUser(store.name)}>Continue</AlertDialogAction>
+                                          <AlertDialogAction onClick={() => handleToggleBan(store.id)}>Continue</AlertDialogAction>
                                         </AlertDialogFooter>
                                       </AlertDialogContent>
                                     </AlertDialog>
-                                    <Button size="sm" onClick={() => handleGiveCredits(store.name)} className="ml-2">Credits</Button> {/* Added ml-2 for spacing */}
+                                    <Button size="sm" onClick={() => handleOpenAddCreditsDialog(store.id, store.name)}>Credits</Button>
                                   </TableCell>
                                 </TableRow>
                               ))}
@@ -339,6 +378,17 @@ const DashboardPage: React.FC = () => {
         isOpen={isDetailsDialogOpen}
         onClose={() => setIsDetailsDialogOpen(false)}
       />
+
+      {/* Add Credits Dialog */}
+      {storeToCredit && (
+        <AddCreditsDialog
+          isOpen={isAddCreditsDialogOpen}
+          onClose={() => setIsAddCreditsDialogOpen(false)}
+          onAddCredits={handleAddCredits}
+          storeName={storeToCredit.name}
+          storeId={storeToCredit.id}
+        />
+      )}
     </div>
   );
 };
