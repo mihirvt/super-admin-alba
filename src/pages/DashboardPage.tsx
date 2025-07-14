@@ -116,10 +116,6 @@ const DashboardPage: React.FC = () => {
     setIsDetailsDialogOpen(true);
   };
 
-  const handleAddCompare = () => {
-    // This button will now trigger the second calendar popover
-  };
-
   const handleToggleBan = (storeId: string) => {
     setStoreCategories(prevCategories =>
       prevCategories.map(category => ({
@@ -214,6 +210,7 @@ const DashboardPage: React.FC = () => {
                 selected={date}
                 onSelect={setDate}
                 initialFocus
+                toDate={new Date()} // Restrict to current date
               />
             </PopoverContent>
           </Popover>
@@ -230,6 +227,7 @@ const DashboardPage: React.FC = () => {
                 selected={compareDate}
                 onSelect={setCompareDate}
                 initialFocus
+                toDate={date || new Date()} // Restrict to primary date or current date
               />
             </PopoverContent>
           </Popover>

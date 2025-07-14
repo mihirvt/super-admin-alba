@@ -1,9 +1,9 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { showSuccess, showError } from "@/utils/toast";
+import CreditAmountInput from './CreditAmountInput'; // Import the new component
 
 interface AddCreditsDialogProps {
   isOpen: boolean;
@@ -38,14 +38,13 @@ const AddCreditsDialog: React.FC<AddCreditsDialogProps> = ({ isOpen, onClose, on
             <Label htmlFor="credits" className="text-right">
               Amount
             </Label>
-            <Input
-              id="credits"
-              type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="col-span-3"
-              placeholder="e.g., 100"
-            />
+            <div className="col-span-3">
+              <CreditAmountInput
+                value={amount}
+                onChange={setAmount}
+                placeholder="e.g., 100"
+              />
+            </div>
           </div>
         </div>
         <DialogFooter>

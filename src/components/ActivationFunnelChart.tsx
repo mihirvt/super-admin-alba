@@ -43,21 +43,22 @@ const ActivationFunnelChart: React.FC = () => {
   // Custom Bar shape to create a funnel effect
   const CustomFunnelBar = (props: any) => {
     const { x, y, width, height, fill, value } = props;
-    // Calculate the scaled width based on the value relative to the max value
-    // We use a base width (e.g., 80% of the full bar width) for the largest bar
-    // and scale others proportionally. This ensures tapering.
-    const baseBarWidth = width * 0.8; // Max width for the largest bar
-    const scaledWidth = (value / maxValue) * baseBarWidth;
-    const offset = (width - scaledWidth) / 2; // Center the bar
+    // Calculate the desired width for this bar based on its value relative to the max value
+    // Let's make the widest bar (maxValue) take up 90% of the available width
+    const maxAllowedWidth = width * 0.9;
+    const currentBarWidth = (value / maxValue) * maxAllowedWidth;
+
+    // Calculate the offset to center the bar within its allocated space
+    const offsetX = x + (width - currentBarWidth) / 2;
 
     return (
       <rect
-        x={x + offset}
+        x={offsetX}
         y={y}
-        width={scaledWidth}
+        width={currentBarWidth}
         height={height}
         fill={fill}
-        rx={4} // Rounded corners for a softer look
+        rx={4} // Rounded corners
         ry={4}
       />
     );
