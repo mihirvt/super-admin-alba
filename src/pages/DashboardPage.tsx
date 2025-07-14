@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent }g from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -214,37 +214,37 @@ const DashboardPage: React.FC = () => {
             <TableBody>
               {dummyStoreCategories.map((category) => (
                 <React.Fragment key={category.id}>
-                  <TableRow className="hover:bg-muted/50 cursor-pointer">
-                    <TableCell className="font-medium">
-                      <Collapsible
-                        open={openCategories[category.id]}
-                        onOpenChange={() => toggleCategory(category.id)}
-                        className="w-full"
-                      >
-                        <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2">
-                          <ChevronDown className={cn("h-4 w-4 transition-transform", openCategories[category.id] && "rotate-180")} />
-                          {category.name}
+                  <Collapsible
+                    open={openCategories[category.id]}
+                    onOpenChange={() => toggleCategory(category.id)}
+                    className="contents" // This makes the Collapsible not render an extra div, allowing TableRow to be direct child of TableBody
+                  >
+                    <TableRow className="hover:bg-muted/50 cursor-pointer">
+                      <TableCell className="font-medium">
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" className="flex items-center gap-2 w-full justify-start text-left py-2 px-0">
+                            <ChevronDown className={cn("h-4 w-4 transition-transform", openCategories[category.id] && "rotate-180")} />
+                            {category.name}
+                          </Button>
                         </CollapsibleTrigger>
-                      </Collapsible>
-                    </TableCell>
-                    <TableCell>{category.totalStores}</TableCell>
-                    <TableCell>₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
-                    <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
-                    <TableCell>₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">Total {category.totalStores}</Badge>
-                    </TableCell>
-                    <TableCell>N/A</TableCell> {/* For Last Login */}
-                    <TableCell>N/A</TableCell> {/* For Daily Logins */}
-                    <TableCell>N/A</TableCell> {/* For Weekly Logins */}
-                    <TableCell>N/A</TableCell> {/* For Exports Scheduled */}
-                    <TableCell>N/A</TableCell> {/* For Avg. Login Freq. */}
-                    <TableCell className="text-right"></TableCell> {/* Empty for Actions */}
-                  </TableRow>
-                  {openCategories[category.id] && (
-                    <TableRow>
-                      <TableCell colSpan={12} className="p-0"> {/* colSpan should match total columns */}
-                        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                      </TableCell>
+                      <TableCell>{category.totalStores}</TableCell>
+                      <TableCell>₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
+                      <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
+                      <TableCell>₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">Total {category.totalStores}</Badge>
+                      </TableCell>
+                      <TableCell>N/A</TableCell> {/* For Last Login */}
+                      <TableCell>N/A</TableCell> {/* For Daily Logins */}
+                      <TableCell>N/A</TableCell> {/* For Weekly Logins */}
+                      <TableCell>N/A</TableCell> {/* For Exports Scheduled */}
+                      <TableCell>N/A</TableCell> {/* For Avg. Login Freq. */}
+                      <TableCell className="text-right"></TableCell> {/* Empty for Actions */}
+                    </TableRow>
+                    <CollapsibleContent asChild>
+                      <TableRow>
+                        <TableCell colSpan={12} className="p-0"> {/* colSpan should match total columns */}
                           <Table className="w-full">
                             <TableBody>
                               {category.stores.map((store) => (
@@ -289,10 +289,10 @@ const DashboardPage: React.FC = () => {
                               ))}
                             </TableBody>
                           </Table>
-                        </CollapsibleContent>
-                      </TableCell>
-                    </TableRow>
-                  )}
+                        </TableCell>
+                      </TableRow>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </React.Fragment>
               ))}
             </TableBody>
