@@ -1,8 +1,18 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Repeat, Clock, Activity, Upload } from "lucide-react"; // Added Activity and Upload icons
-import { DateRange } from "react-day-picker"; // Import DateRange type
-import { format } from "date-fns"; // Import format for date display
+import { DollarSign, Users, Repeat, Clock, Activity, Upload } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
+
+interface PirateMetrics {
+  acquisition: { value: string; description: string; };
+  retention: { value: string; description: string; };
+  revenue: { value: string; description: string; };
+  dailyLogins: { value: string; description: string; };
+  weeklyLogins: { value: string; description: string; };
+  exportsScheduled: { value: string; description: string; };
+  avgLoginFrequency: { value: string; description: string; };
+}
 
 interface MetricCardProps {
   title: string;
@@ -27,13 +37,10 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, description, icon
 interface PirateMetricsSummaryProps {
   dateRange: DateRange | undefined;
   compareDateRange: DateRange | undefined;
+  metrics: PirateMetrics; // New prop for metrics
 }
 
-const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, compareDateRange }) => {
-  // Frontend is now ready to receive date ranges for comparison.
-  // A developer can use dateRange and compareDateRange here to fetch/filter actual data.
-  // For now, the dummy data remains static.
-
+const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, compareDateRange, metrics }) => {
   const formatDateRange = (range: DateRange | undefined) => {
     if (!range?.from) return "N/A";
     if (!range.to) return format(range.from, "LLL dd, y");
@@ -53,44 +60,44 @@ const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         <MetricCard
           title="Acquisition"
-          value="1,250 New Stores"
-          description="+20.1% from last month"
+          value={metrics.acquisition.value}
+          description={metrics.acquisition.description}
           icon={<Users className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Retention"
-          value="92% Retained"
-          description="-1.2% from last month"
+          value={metrics.retention.value}
+          description={metrics.retention.description}
           icon={<Repeat className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Revenue"
-          value="₹450,000 MRR"
-          description="+15% from last month"
+          value={metrics.revenue.value}
+          description={metrics.revenue.description}
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Daily Logins"
-          value="1,200"
-          description="Avg. 1.5 logins/store"
+          value={metrics.dailyLogins.value}
+          description={metrics.dailyLogins.description}
           icon={<Clock className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Weekly Logins"
-          value="7,500"
-          description="Avg. 9.3 logins/store"
+          value={metrics.weeklyLogins.value}
+          description={metrics.weeklyLogins.description}
           icon={<Clock className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Exports Scheduled"
-          value="350"
-          description="+5% from last month"
+          value={metrics.exportsScheduled.value}
+          description={metrics.exportsScheduled.description}
           icon={<Upload className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard
           title="Avg. Login Freq."
-          value="3 times/week"
-          description="Consistent engagement"
+          value={metrics.avgLoginFrequency.value}
+          description={metrics.avgLoginFrequency.description}
           icon={<Activity className="h-4 w-4 text-muted-foreground" />}
         />
       </div>

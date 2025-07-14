@@ -7,43 +7,30 @@ interface FunnelData {
   value: number;
 }
 
-// Base dummy data for the primary period
-const baseData: FunnelData[] = [
-  { name: 'Signed Up', value: 1500 },
-  { name: 'Shopify Integrated', value: 1100 },
-  { name: 'Meta Ads Integrated', value: 900 },
-  { name: 'Shiprocket Integrated', value: 700 },
-];
-
-// Dummy data for comparison (slightly different values to show interactivity)
-const compareData: FunnelData[] = [
-  { name: 'Signed Up', value: 1300 },
-  { name: 'Shopify Integrated', value: 950 },
-  { name: 'Meta Ads Integrated', value: 750 },
-  { name: 'Shiprocket Integrated', value: 600 },
-];
-
 interface ActivationFunnelChartProps {
   dateRange: DateRange | undefined;
   compareDateRange: DateRange | undefined;
+  primaryData: FunnelData[]; // New prop for primary funnel data
+  compareData: FunnelData[]; // New prop for comparison funnel data
 }
 
-const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange, compareDateRange }) => {
+const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange, compareDateRange, primaryData, compareData }) => {
   const [hoveredSegment, setHoveredSegment] = React.useState<FunnelData | null>(null);
   const [tooltipPosition, setTooltipPosition] = React.useState<{ x: number; y: number } | null>(null);
 
   // Determine which data to use based on whether a comparison range is selected
-  const currentData = compareDateRange?.from && compareDateRange.to ? compareData : baseData;
+  const currentData = compareDateRange?.from && compareDateRange.to ? compareData : primaryData;
   const isComparing = !!(compareDateRange?.from && compareDateRange.to);
 
   const totalWidth = 600; // Total width of the chart area
   const segmentWidth = totalWidth / currentData.length;
   const maxHeight = 150; // Max height for the widest part of the funnel (at the start)
+  const curveOffset = 10; // Small offset for the Bezier control points to create a subtle curve
 
   // Calculate the height for each segment, tapering down
   const funnelSegments = currentData.map((item, index) => {
     const currentTopValue = item.value;
-    const nextValue = index < currentData.length - 1 ? currentData[index + 1].value : item.value; // If last segment, next value is current value
+    const nextValue = index < currentData.length - 1 ? currentData[index + 1].value : item.value;
 
     const topHeight = (currentTopValue / currentData[0].value) * maxHeight;
     const bottomHeight = (nextValue / currentData[0].value) * maxHeight;
@@ -54,7 +41,7 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
       bottomHeight,
       x: index * segmentWidth,
       width: segmentWidth,
-      index: index, // Add index for conversion rate calculation
+      index: index,
     };
   });
 
@@ -81,9 +68,9 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[200px] flex justify-center items-center relative"> {/* Added relative for tooltip positioning */}
-          <svg width="100%" height="100%" viewBox={`0 0 ${totalWidth} ${maxHeight + 50}`}> {/* Adjusted viewBox */}
-            <g transform={`translate(0, ${(maxHeight + 50 - maxHeight) / 2})`}> {/* Center the funnel vertically */}
+        <div className="h-[200px] flex justify-center items-center relative">
+          <svg width="100%" height="100%" viewBox={`0 0 ${totalWidth} ${maxHeight + 50}`}>
+            <g transform={`translate(0, ${(maxHeight + 50 - maxHeight) / 2})`}>
               {funnelSegments.map((segment, index) => {
                 const y1 = (maxHeight - segment.topHeight) / 2; // Top-left Y
                 const y2 = (maxHeight + segment.topHeight) / 2; // Bottom-left Y
@@ -95,35 +82,49 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
                 // Calculate vertical center for text within the segment
                 const segmentCenterY = (y1 + y2 + y3 + y4) / 4;
 
+                // Path with curved vertical edges using cubic Bezier
+                const pathData = `
+                  M ${x1} ${y1}
+                  L ${x2} ${y4}
+                  C ${x2 + curveOffset}, ${y4 + (y3 - y4) / 3},
+                    ${x2 + curveOffset}, ${y4 + 2 * (y3 - y4) / 3},
+                    ${x2} ${y3}
+                  L ${x1} ${y2}
+                  C ${x1 - curveOffset}, ${y2 - (y2 - y1) / 3},
+                    ${x1 - curveOffset}, ${y2 - 2 * (y2 - y1) / 3},
+                    ${x1} ${y1}
+                  Z
+                `;
+
                 return (
                   <React.Fragment key={segment.name}>
                     <path
-                      d={`M ${x1} ${y1} L ${x2} ${y4} L ${x2} ${y3} L ${x1} ${y2} Z`}
-                      fill={fillColor} // Dynamic fill color
-                      stroke={strokeColor} // Added stroke for definition
+                      d={pathData}
+                      fill={fillColor}
+                      stroke={strokeColor}
                       strokeWidth="1"
-                      opacity={1 - (index * 0.1)} // Slight opacity change for depth
+                      opacity={1 - (index * 0.1)}
                       onMouseEnter={(e) => handleMouseEnter(e, segment)}
                       onMouseLeave={handleMouseLeave}
-                      className="transition-all duration-200 ease-in-out hover:opacity-100 hover:scale-[1.02]" // Added hover effect
+                      className="transition-all duration-200 ease-in-out hover:opacity-100 hover:scale-[1.02]"
                     />
                     <text
                       x={segment.x + segment.width / 2}
-                      y={segmentCenterY - 10} // Position name slightly above center
+                      y={segmentCenterY - 10}
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      fill="hsl(var(--primary-foreground))" // Use foreground color for better contrast
-                      className="text-xs font-semibold pointer-events-none" // Smaller font size
+                      fill="hsl(var(--primary-foreground))"
+                      className="text-xs font-semibold pointer-events-none"
                     >
                       {segment.name}
                     </text>
                     <text
                       x={segment.x + segment.width / 2}
-                      y={segmentCenterY + 10} // Position value slightly below center
+                      y={segmentCenterY + 10}
                       textAnchor="middle"
                       dominantBaseline="middle"
                       fill="hsl(var(--primary-foreground))"
-                      className="text-sm font-bold pointer-events-none" // Slightly larger for value
+                      className="text-sm font-bold pointer-events-none"
                     >
                       ({segment.value})
                     </text>
@@ -136,7 +137,7 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
           {hoveredSegment && tooltipPosition && (
             <div
               className="absolute bg-popover p-2 border border-border rounded-md shadow-md text-popover-foreground z-50"
-              style={{ left: tooltipPosition.x + 10, top: tooltipPosition.y + 10 }} // Offset tooltip from cursor
+              style={{ left: tooltipPosition.x + 10, top: tooltipPosition.y + 10 }}
             >
               <p className="font-bold">{hoveredSegment.name}</p>
               <p>Value: {hoveredSegment.value}</p>

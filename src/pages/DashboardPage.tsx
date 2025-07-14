@@ -8,18 +8,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronDown, Edit, Search } from "lucide-react";
+import { CalendarIcon, ChevronDown, Edit } from "lucide-react"; // Removed Search
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import PirateMetricsSummary from "@/components/PirateMetricsSummary";
-import { showSuccess } from "@/utils/toast"; // Import toast utility
-import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
-import StoreDetailsDialog from "@/components/StoreDetailsDialog"; // Import StoreDetailsDialog
-import ActivationFunnelChart from "@/components/ActivationFunnelChart"; // Import ActivationFunnelChart
-import AddCreditsDialog from "@/components/AddCreditsDialog"; // Import AddCreditsDialog
-import { DateRange } from "react-day-picker"; // Import DateRange type
+import { showSuccess } from "@/utils/toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import StoreDetailsDialog from "@/components/StoreDetailsDialog";
+import ActivationFunnelChart from "@/components/ActivationFunnelChart";
+import AddCreditsDialog from "@/components/AddCreditsDialog";
+import { DateRange } from "react-day-picker";
 
 interface Store {
   id: string;
@@ -93,6 +91,32 @@ const DashboardPage: React.FC = () => {
   const [isPrimaryCalendarOpen, setIsPrimaryCalendarOpen] = React.useState(false);
   const [isCompareCalendarOpen, setIsCompareCalendarOpen] = React.useState(false);
 
+  // Dummy data for Pirate Metrics (now passed as prop)
+  const pirateMetrics = {
+    acquisition: { value: "1,250 New Stores", description: "+20.1% from last month" },
+    retention: { value: "92% Retained", description: "-1.2% from last month" },
+    revenue: { value: "₹450,000 MRR", description: "+15% from last month" },
+    dailyLogins: { value: "1,200", description: "Avg. 1.5 logins/store" },
+    weeklyLogins: { value: "7,500", description: "Avg. 9.3 logins/store" },
+    exportsScheduled: { value: "350", description: "+5% from last month" },
+    avgLoginFrequency: { value: "3 times/week", description: "Consistent engagement" },
+  };
+
+  // Dummy data for Activation Funnel (now passed as prop)
+  const primaryFunnelData = [
+    { name: 'Signed Up', value: 1500 },
+    { name: 'Shopify Integrated', value: 1100 },
+    { name: 'Meta Ads Integrated', value: 900 },
+    { name: 'Shiprocket Integrated', value: 700 },
+  ];
+
+  const compareFunnelData = [
+    { name: 'Signed Up', value: 1300 },
+    { name: 'Shopify Integrated', value: 950 },
+    { name: 'Meta Ads Integrated', value: 750 },
+    { name: 'Shiprocket Integrated', value: 600 },
+  ];
+
 
   const toggleCategory = (categoryId: string) => {
     setOpenCategories(prev => ({
@@ -164,15 +188,12 @@ const DashboardPage: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-0">Super Admin Dashboard</h1>
         <div className="flex items-center gap-4">
-          {/* Removed DropdownMenu for store selection */}
           <ThemeToggle /> {/* Dark mode toggle */}
         </div>
       </div>
 
       {/* Navigation and Filters */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
-        {/* Removed Search Input */}
-
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
           <Popover open={isPrimaryCalendarOpen} onOpenChange={setIsPrimaryCalendarOpen}>
             <PopoverTrigger asChild>
@@ -250,10 +271,10 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Pirate Metrics Summary */}
-      <PirateMetricsSummary dateRange={dateRange} compareDateRange={compareDateRange} />
+      <PirateMetricsSummary dateRange={dateRange} compareDateRange={compareDateRange} metrics={pirateMetrics} />
 
       {/* Activation Funnel Chart */}
-      <ActivationFunnelChart dateRange={dateRange} compareDateRange={compareDateRange} />
+      <ActivationFunnelChart dateRange={dateRange} compareDateRange={compareDateRange} primaryData={primaryFunnelData} compareData={compareFunnelData} />
 
       {/* Category Section */}
       <Card className="bg-card border-border shadow-lg">
