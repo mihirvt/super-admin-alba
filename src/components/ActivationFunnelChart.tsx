@@ -65,6 +65,10 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
     setTooltipPosition(null);
   };
 
+  // Determine fill color based on comparison state
+  const fillColor = isComparing ? "hsl(var(--accent))" : "hsl(var(--primary))";
+  const strokeColor = isComparing ? "hsl(var(--accent-foreground))" : "hsl(var(--primary-foreground))";
+
   return (
     <Card className="bg-card border-border shadow-lg mb-8">
       <CardHeader>
@@ -89,7 +93,9 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
                   <React.Fragment key={segment.name}>
                     <path
                       d={`M ${x1} ${y1} L ${x2} ${y4} L ${x2} ${y3} L ${x1} ${y2} Z`}
-                      fill={isComparing ? "hsl(var(--accent))" : "hsl(var(--primary))"} // Dynamic fill color
+                      fill={fillColor} // Dynamic fill color
+                      stroke={strokeColor} // Added stroke for definition
+                      strokeWidth="1"
                       opacity={1 - (index * 0.1)} // Slight opacity change for depth
                       onMouseEnter={(e) => handleMouseEnter(e, segment)}
                       onMouseLeave={handleMouseLeave}
@@ -97,13 +103,23 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
                     />
                     <text
                       x={segment.x + segment.width / 2}
-                      y={maxHeight / 2}
+                      y={y1 - 10} // Position text above the segment
                       textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="hsl(var(--primary-foreground))"
-                      className="text-sm font-semibold pointer-events-none" // Prevent text from interfering with hover
+                      dominantBaseline="auto" // Adjust dominantBaseline
+                      fill="hsl(var(--foreground))" // Use foreground color for better contrast
+                      className="text-xs font-semibold pointer-events-none" // Smaller font size
                     >
-                      {segment.name} ({segment.value})
+                      {segment.name}
+                    </text>
+                    <text
+                      x={segment.x + segment.width / 2}
+                      y={y1 + 5} // Position value slightly below name
+                      textAnchor="middle"
+                      dominantBaseline="hanging"
+                      fill="hsl(var(--foreground))"
+                      className="text-sm font-bold pointer-events-none" // Slightly larger for value
+                    >
+                      ({segment.value})
                     </text>
                   </React.Fragment>
                 );
