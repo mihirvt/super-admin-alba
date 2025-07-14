@@ -40,15 +40,15 @@ const ActivationFunnelChart: React.FC = () => {
   // Calculate max value for scaling the funnel bars
   const maxValue = Math.max(...data.map(item => item.value));
 
-  // Custom Bar shape to create a funnel effect
+  // Custom Bar shape to create a funnel effect for vertical bars
   const CustomFunnelBar = (props: any) => {
     const { x, y, width, height, fill, value } = props;
     // Calculate the desired width for this bar based on its value relative to the max value
-    // Let's make the widest bar (maxValue) take up 90% of the available width
-    const maxAllowedWidth = width * 0.9;
+    // Let's make the widest bar (maxValue) take up 80% of the available category width
+    const maxAllowedWidth = width * 0.8;
     const currentBarWidth = (value / maxValue) * maxAllowedWidth;
 
-    // Calculate the offset to center the bar within its allocated space
+    // Calculate the offset to center the bar within its allocated category width
     const offsetX = x + (width - currentBarWidth) / 2;
 
     return (
@@ -83,12 +83,12 @@ const ActivationFunnelChart: React.FC = () => {
                 left: 20,
                 bottom: 5,
               }}
-              layout="vertical"
+              layout="horizontal" // Changed to horizontal layout for vertical bars
               barCategoryGap="10%" // Add some gap between bars for visual separation
             >
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis type="number" hide />
-              <YAxis type="category" dataKey="name" width={120} tickLine={false} axisLine={false} />
+              <XAxis type="category" dataKey="name" tickLine={false} axisLine={false} />
+              <YAxis type="number" hide />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="value" fill="hsl(var(--primary))" shape={<CustomFunnelBar />} />
             </BarChart>

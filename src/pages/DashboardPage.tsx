@@ -78,13 +78,16 @@ const initialDummyStoreCategories: StoreCategory[] = [
 
 const DashboardPage: React.FC = () => {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
-  const [compareDate, setCompareDate] = React.useState<Date | undefined>(undefined); // New state for compare date
+  const [compareDate, setCompareDate] = React.useState<Date | undefined>(undefined);
   const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>({});
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
   const [selectedStore, setSelectedStore] = React.useState<Store | null>(null);
   const [isAddCreditsDialogOpen, setIsAddCreditsDialogOpen] = React.useState(false);
   const [storeToCredit, setStoreToCredit] = React.useState<{ id: string; name: string } | null>(null);
   const [storeCategories, setStoreCategories] = React.useState<StoreCategory[]>(initialDummyStoreCategories);
+
+  const [isPrimaryCalendarOpen, setIsPrimaryCalendarOpen] = React.useState(false);
+  const [isCompareCalendarOpen, setIsCompareCalendarOpen] = React.useState(false);
 
 
   const toggleCategory = (categoryId: string) => {
@@ -95,7 +98,6 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleStoreClick = (store: Store) => {
-    // Only pass essential details to the dialog
     setSelectedStore({
       id: store.id,
       name: store.name,
@@ -191,7 +193,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
-          <Popover>
+          <Popover open={isPrimaryCalendarOpen} onOpenChange={setIsPrimaryCalendarOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
@@ -208,13 +210,16 @@ const DashboardPage: React.FC = () => {
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={setDate}
+                onSelect={(selectedDate) => {
+                  setDate(selectedDate);
+                  setIsPrimaryCalendarOpen(false); // Close popover on select
+                }}
                 initialFocus
                 toDate={new Date()} // Restrict to current date
               />
             </PopoverContent>
           </Popover>
-          <Popover>
+          <Popover open={isCompareCalendarOpen} onOpenChange={setIsCompareCalendarOpen}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full sm:w-auto">
                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -225,7 +230,10 @@ const DashboardPage: React.FC = () => {
               <Calendar
                 mode="single"
                 selected={compareDate}
-                onSelect={setCompareDate}
+                onSelect={(selectedDate) => {
+                  setCompareDate(selectedDate);
+                  setIsCompareCalendarOpen(false); // Close popover on select
+                }}
                 initialFocus
                 toDate={date || new Date()} // Restrict to primary date or current date
               />
@@ -307,34 +315,34 @@ const DashboardPage: React.FC = () => {
                           </Button>
                         </CollapsibleTrigger>
                       </TableCell>
-                      <TableCell>{category.totalStores}</TableCell>
-                      <TableCell>₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
-                      <TableCell>N/A</TableCell>
-                      <TableCell>₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
-                      <TableCell>
+                      <TableCell className="w-[100px]">{category.totalStores}</TableCell>
+                      <TableCell className="w-[100px]">₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
+                      <TableCell className="w-[120px]">N/A</TableCell>
+                      <TableCell className="w-[100px]">₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
+                      <TableCell className="w-[150px]">
                         <Badge variant="secondary">Total {category.totalStores}</Badge>
                       </TableCell>
-                      <TableCell>N/A</TableCell>
-                      <TableCell>N/A</TableCell>
-                      <TableCell>N/A</TableCell>
-                      <TableCell>N/A</TableCell>
-                      <TableCell>N/A</TableCell>
-                      <TableCell>N/A</TableCell> {/* N/A for category total credits */}
-                      <TableCell className="text-right"></TableCell>
+                      <TableCell className="w-[120px]">N/A</TableCell>
+                      <TableCell className="w-[100px]">N/A</TableCell>
+                      <TableCell className="w-[100px]">N/A</TableCell>
+                      <TableCell className="w-[120px]">N/A</TableCell>
+                      <TableCell className="w-[120px]">N/A</TableCell>
+                      <TableCell className="w-[100px]">N/A</TableCell> {/* N/A for category total credits */}
+                      <TableCell className="text-right w-[150px]"></TableCell>
                     </TableRow>
                     <CollapsibleContent asChild>
                       <TableRow>
-                        <TableCell colSpan={13} className="p-0"> {/* Adjusted colSpan */}
+                        <TableCell colSpan={13} className="p-0">
                           <Table className="w-full">
                             <TableBody>
                               {category.stores.map((store) => (
                                 <TableRow key={store.id} className="bg-muted/20">
-                                  <TableCell className="pl-8 w-[150px]">
+                                  <TableCell className="pl-8 w-[150px]"> {/* Aligned with 'Store Category / Store' */}
                                     <Button variant="link" onClick={() => handleStoreClick(store)} className="p-0 h-auto text-left">
                                       {store.name}
                                     </Button>
                                   </TableCell>
-                                  <TableCell className="w-[100px]"></TableCell>
+                                  <TableCell className="w-[100px]"></TableCell> {/* Empty cell to align with 'Total Stores' */}
                                   <TableCell className="w-[100px]">₹{store.gmv.toLocaleString()}</TableCell>
                                   <TableCell className="w-[120px]">{store.conversionRate}</TableCell>
                                   <TableCell className="w-[100px]">{store.mrr}</TableCell>
@@ -346,7 +354,7 @@ const DashboardPage: React.FC = () => {
                                           : store.subscriptionStatus === "Active Daily"
                                           ? "secondary"
                                           : store.subscriptionStatus === "Banned"
-                                          ? "destructive" // Use destructive for banned
+                                          ? "destructive"
                                           : "outline"
                                       }
                                       className={cn(
@@ -363,8 +371,8 @@ const DashboardPage: React.FC = () => {
                                   <TableCell className="w-[100px]">{store.weeklyLogins}</TableCell>
                                   <TableCell className="w-[120px]">{store.exportsScheduled}</TableCell>
                                   <TableCell className="w-[120px]">{store.avgLoginFrequency}</TableCell>
-                                  <TableCell className="w-[100px]">{store.creditsInWallet}</TableCell> {/* Display credits */}
-                                  <TableCell className="text-right w-[150px] flex justify-end items-center gap-2"> {/* Added gap-2 for spacing */}
+                                  <TableCell className="w-[100px]">{store.creditsInWallet}</TableCell>
+                                  <TableCell className="text-right w-[150px] flex justify-end items-center gap-2">
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild>
                                         <Button variant="outline" size="sm">
