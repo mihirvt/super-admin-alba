@@ -8,15 +8,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, ChevronDown, Edit } from "lucide-react"; // Removed Search
+import { CalendarIcon, ChevronDown, Edit, PlusCircle } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"; // Import Dialog components
 import PirateMetricsSummary from "@/components/PirateMetricsSummary";
-import { showSuccess } from "@/utils/toast";
+import { showSuccess, showError } from "@/utils/toast"; // Import showError
 import { ThemeToggle } from "@/components/ThemeToggle";
 import StoreDetailsDialog from "@/components/StoreDetailsDialog";
 import ActivationFunnelChart from "@/components/ActivationFunnelChart";
 import AddCreditsDialog from "@/components/AddCreditsDialog";
+import { MadeWithDyad } from "@/components/made-with-dyad"; // Import MadeWithDyad
 import { DateRange } from "react-day-picker";
 
 interface Store {
@@ -87,6 +89,8 @@ const DashboardPage: React.FC = () => {
   const [isAddCreditsDialogOpen, setIsAddCreditsDialogOpen] = React.useState(false);
   const [storeToCredit, setStoreToCredit] = React.useState<{ id: string; name: string } | null>(null);
   const [storeCategories, setStoreCategories] = React.useState<StoreCategory[]>(initialDummyStoreCategories);
+  const [isAddCategoryDialogOpen, setIsAddCategoryDialogOpen] = React.useState(false);
+  const [newCategoryName, setNewCategoryName] = React.useState('');
 
   const [isPrimaryCalendarOpen, setIsPrimaryCalendarOpen] = React.useState(false);
   const [isCompareCalendarOpen, setIsCompareCalendarOpen] = React.useState(false);
@@ -182,8 +186,31 @@ const DashboardPage: React.FC = () => {
     showSuccess(`Successfully added ${amount} credits to ${storeToCredit?.name}'s wallet!`);
   };
 
+  const handleAddCategory = () => {
+    if (!newCategoryName.trim()) {
+      showError("Category name cannot be empty.");
+      return;
+    }
+    const newId = newCategoryName.toLowerCase().replace(/\s+/g, '-');
+    if (storeCategories.some(cat => cat.id === newId)) {
+      showError("Category with this name already exists.");
+      return;
+    }
+
+    const newCategory: StoreCategory = {
+      id: newId,
+      name: newCategoryName.trim(),
+      totalStores: 0,
+      stores: [],
+    };
+    setStoreCategories(prev => [...prev, newCategory]);
+    setNewCategoryName('');
+    setIsAddCategoryDialogOpen(false);
+    showSuccess(`Category "${newCategoryName}" added successfully!`);
+  };
+
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 md:p-8 lg:p-10">
+    <div className="min-h-screen bg-background text-foreground p-6 md:p-8 lg:p-10 flex flex-col">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-0">Super Admin Dashboard</h1>
@@ -277,7 +304,7 @@ const DashboardPage: React.FC = () => {
       <ActivationFunnelChart dateRange={dateRange} compareDateRange={compareDateRange} primaryData={primaryFunnelData} compareData={compareFunnelData} />
 
       {/* Category Section */}
-      <Card className="bg-card border-border shadow-lg">
+      <Card className="bg-card border-border shadow-lg flex-grow"> {/* Added flex-grow */}
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div>
             <CardTitle className="text-2xl font-semibold">Store Categories</CardTitle>
@@ -286,154 +313,140 @@ const DashboardPage: React.FC = () => {
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-1">
-                  <Edit className="h-4 w-4" /> Edit
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Edit Store Categories</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This feature is under development. You will be able to edit store categories here soon.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Close</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => showSuccess("Edit functionality will be available soon!")}>Confirm</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Button variant="outline" className="flex items-center gap-1" onClick={() => setIsAddCategoryDialogOpen(true)}>
+              <PlusCircle className="h-4 w-4" /> Add Category
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[150px]">Store Category / Store</TableHead>
-                <TableHead className="w-[100px]">Total Stores</TableHead>
-                <TableHead className="w-[100px]">GMV</TableHead>
-                <TableHead className="w-[120px]">Conversion Rate</TableHead>
-                <TableHead className="w-[100px]">MRR</TableHead>
-                <TableHead className="w-[150px]">Subscription Status</TableHead>
-                <TableHead className="w-[120px]">Last Login</TableHead>
-                <TableHead className="w-[100px]">Daily Logins</TableHead>
-                <TableHead className="w-[100px]">Weekly Logins</TableHead>
-                <TableHead className="w-[120px]">Exports Scheduled</TableHead>
-                <TableHead className="w-[120px]">Avg. Login Freq.</TableHead>
-                <TableHead className="w-[100px]">Credits</TableHead> {/* New Credits column */}
-                <TableHead className="text-right w-[150px]">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {storeCategories.map((category) => (
-                <React.Fragment key={category.id}>
-                  <Collapsible
-                    open={openCategories[category.id]}
-                    onOpenChange={() => toggleCategory(category.id)}
-                    className="contents"
-                  >
-                    <TableRow className="hover:bg-muted/50 cursor-pointer">
-                      <TableCell className="font-medium w-[150px]">
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" className="flex items-center gap-2 w-full justify-start text-left py-2 px-0">
-                            <ChevronDown className={cn("h-4 w-4 transition-transform", openCategories[category.id] && "rotate-180")} />
-                            {category.name}
-                          </Button>
-                        </CollapsibleTrigger>
-                      </TableCell>
-                      <TableCell className="w-[100px]">{category.totalStores}</TableCell>
-                      <TableCell className="w-[100px]">₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
-                      <TableCell className="w-[120px]">N/A</TableCell>
-                      <TableCell className="w-[100px]">₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
-                      <TableCell className="w-[150px]">
-                        <Badge variant="secondary">Total {category.totalStores}</Badge>
-                      </TableCell>
-                      <TableCell className="w-[120px]">N/A</TableCell>
-                      <TableCell className="w-[100px]">N/A</TableCell>
-                      <TableCell className="w-[100px]">N/A</TableCell>
-                      <TableCell className="w-[120px]">N/A</TableCell>
-                      <TableCell className="w-[120px]">N/A</TableCell>
-                      <TableCell className="w-[100px]">N/A</TableCell> {/* N/A for category total credits */}
-                      <TableCell className="text-right w-[150px]"></TableCell>
-                    </TableRow>
-                    <CollapsibleContent asChild>
-                      <TableRow>
-                        <TableCell colSpan={13} className="p-0">
-                          <Table className="w-full">
-                            <TableBody>
-                              {category.stores.map((store) => (
-                                <TableRow key={store.id} className="bg-muted/20">
-                                  <TableCell className="pl-8 w-[150px]"> {/* Aligned with 'Store Category / Store' */}
-                                    <Button variant="link" onClick={() => handleStoreClick(store)} className="p-0 h-auto text-left">
-                                      {store.name}
-                                    </Button>
-                                  </TableCell>
-                                  <TableCell className="w-[100px]"></TableCell> {/* Empty cell to align with 'Total Stores' */}
-                                  <TableCell className="w-[100px]">₹{store.gmv.toLocaleString()}</TableCell>
-                                  <TableCell className="w-[120px]">{store.conversionRate}</TableCell>
-                                  <TableCell className="w-[100px]">{store.mrr}</TableCell>
-                                  <TableCell className="w-[150px]">
-                                    <Badge
-                                      variant={
-                                        store.subscriptionStatus === "Active"
-                                          ? "default"
-                                          : store.subscriptionStatus === "Active Daily"
-                                          ? "secondary"
-                                          : store.subscriptionStatus === "Banned"
-                                          ? "destructive"
-                                          : "outline"
-                                      }
-                                      className={cn(
-                                        store.subscriptionStatus === "Active Daily" && "bg-yellow-600 text-white hover:bg-yellow-700",
-                                        store.subscriptionStatus === "Free Trial" && "bg-gray-500 text-white hover:bg-gray-600",
-                                        store.subscriptionStatus === "Churned" && "bg-red-600 text-white hover:bg-red-700"
-                                      )}
-                                    >
-                                      {store.subscriptionStatus}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell className="w-[120px]">{store.lastLogin}</TableCell>
-                                  <TableCell className="w-[100px]">{store.dailyLogins}</TableCell>
-                                  <TableCell className="w-[100px]">{store.weeklyLogins}</TableCell>
-                                  <TableCell className="w-[120px]">{store.exportsScheduled}</TableCell>
-                                  <TableCell className="w-[120px]">{store.avgLoginFrequency}</TableCell>
-                                  <TableCell className="w-[100px]">{store.creditsInWallet}</TableCell>
-                                  <TableCell className="text-right w-[150px] flex justify-end items-center gap-2">
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild>
-                                        <Button variant="outline" size="sm">
-                                          {store.subscriptionStatus === 'Banned' ? 'Unban' : 'Ban'}
-                                        </Button>
-                                      </AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                          <AlertDialogDescription>
-                                            This action will {store.subscriptionStatus === 'Banned' ? 'unban' : 'permanently ban'} {store.name} from accessing the platform.
-                                          </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                          <AlertDialogAction onClick={() => handleToggleBan(store.id)}>Continue</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                    <Button size="sm" onClick={() => handleOpenAddCreditsDialog(store.id, store.name)}>Credits</Button>
-                                  </TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
+          <div className="overflow-x-auto"> {/* Added overflow-x-auto for responsiveness */}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[150px]">Store Category / Store</TableHead>
+                  <TableHead className="w-[100px]">Total Stores</TableHead>
+                  <TableHead className="w-[100px]">GMV</TableHead>
+                  <TableHead className="w-[120px]">Conversion Rate</TableHead>
+                  <TableHead className="w-[100px]">MRR</TableHead>
+                  <TableHead className="w-[150px]">Subscription Status</TableHead>
+                  <TableHead className="w-[120px]">Last Login</TableHead>
+                  <TableHead className="w-[100px]">Daily Logins</TableHead>
+                  <TableHead className="w-[100px]">Weekly Logins</TableHead>
+                  <TableHead className="w-[120px]">Exports Scheduled</TableHead>
+                  <TableHead className="w-[120px]">Avg. Login Freq.</TableHead>
+                  <TableHead className="w-[100px]">Credits</TableHead> {/* New Credits column */}
+                  <TableHead className="text-right w-[150px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {storeCategories.map((category) => (
+                  <React.Fragment key={category.id}>
+                    <Collapsible
+                      open={openCategories[category.id]}
+                      onOpenChange={() => toggleCategory(category.id)}
+                      className="contents"
+                    >
+                      <TableRow className="hover:bg-muted/50 cursor-pointer">
+                        <TableCell className="font-medium w-[150px]">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" className="flex items-center gap-2 w-full justify-start text-left py-2 px-0">
+                              <ChevronDown className={cn("h-4 w-4 transition-transform", openCategories[category.id] && "rotate-180")} />
+                              {category.name}
+                            </Button>
+                          </CollapsibleTrigger>
                         </TableCell>
+                        <TableCell className="w-[100px]">{category.totalStores}</TableCell>
+                        <TableCell className="w-[100px]">₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
+                        <TableCell className="w-[120px]">N/A</TableCell>
+                        <TableCell className="w-[100px]">₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
+                        <TableCell className="w-[150px]">
+                          <Badge variant="secondary">Total {category.totalStores}</Badge>
+                        </TableCell>
+                        <TableCell className="w-[120px]">N/A</TableCell>
+                        <TableCell className="w-[100px]">N/A</TableCell>
+                        <TableCell className="w-[100px]">N/A</TableCell>
+                        <TableCell className="w-[120px]">N/A</TableCell>
+                        <TableCell className="w-[120px]">N/A</TableCell>
+                        <TableCell className="w-[100px]">N/A</TableCell> {/* N/A for category total credits */}
+                        <TableCell className="text-right w-[150px]"></TableCell>
                       </TableRow>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </React.Fragment>
-              ))}
-            </TableBody>
-          </Table>
+                      <CollapsibleContent asChild>
+                        <TableRow>
+                          <TableCell colSpan={13} className="p-0">
+                            <Table className="w-full">
+                              <TableBody>
+                                {category.stores.map((store) => (
+                                  <TableRow key={store.id} className="bg-muted/20">
+                                    <TableCell className="pl-8 w-[150px]"> {/* Aligned with 'Store Category / Store' */}
+                                      <Button variant="link" onClick={() => handleStoreClick(store)} className="p-0 h-auto text-left">
+                                        {store.name}
+                                      </Button>
+                                    </TableCell>
+                                    <TableCell className="w-[100px]"></TableCell> {/* Empty cell to align with 'Total Stores' */}
+                                    <TableCell className="w-[100px]">₹{store.gmv.toLocaleString()}</TableCell>
+                                    <TableCell className="w-[120px]">{store.conversionRate}</TableCell>
+                                    <TableCell className="w-[100px]">{store.mrr}</TableCell>
+                                    <TableCell className="w-[150px]">
+                                      <Badge
+                                        variant={
+                                          store.subscriptionStatus === "Active"
+                                            ? "default"
+                                            : store.subscriptionStatus === "Active Daily"
+                                            ? "secondary"
+                                            : store.subscriptionStatus === "Banned"
+                                            ? "destructive"
+                                            : "outline"
+                                        }
+                                        className={cn(
+                                          store.subscriptionStatus === "Active Daily" && "bg-yellow-600 text-white hover:bg-yellow-700",
+                                          store.subscriptionStatus === "Free Trial" && "bg-gray-500 text-white hover:bg-gray-600",
+                                          store.subscriptionStatus === "Churned" && "bg-red-600 text-white hover:bg-red-700"
+                                        )}
+                                      >
+                                        {store.subscriptionStatus}
+                                      </Badge>
+                                    </TableCell>
+                                    <TableCell className="w-[120px]">{store.lastLogin}</TableCell>
+                                    <TableCell className="w-[100px]">{store.dailyLogins}</TableCell>
+                                    <TableCell className="w-[100px]">{store.weeklyLogins}</TableCell>
+                                    <TableCell className="w-[120px]">{store.exportsScheduled}</TableCell>
+                                    <TableCell className="w-[120px]">{store.avgLoginFrequency}</TableCell>
+                                    <TableCell className="w-[100px]">{store.creditsInWallet}</TableCell>
+                                    <TableCell className="text-right w-[150px] flex justify-end items-center gap-2">
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                          <Button variant="outline" size="sm">
+                                            {store.subscriptionStatus === 'Banned' ? 'Unban' : 'Ban'}
+                                          </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                              This action will {store.subscriptionStatus === 'Banned' ? 'unban' : 'permanently ban'} {store.name} from accessing the platform.
+                                            </AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleToggleBan(store.id)}>Continue</AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                      <Button size="sm" onClick={() => handleOpenAddCreditsDialog(store.id, store.name)}>Credits</Button>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </TableCell>
+                        </TableRow>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -454,6 +467,31 @@ const DashboardPage: React.FC = () => {
           storeId={storeToCredit.id}
         />
       )}
+
+      {/* Add Category Dialog */}
+      <Dialog open={isAddCategoryDialogOpen} onOpenChange={setIsAddCategoryDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Store Category</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <Input
+              id="categoryName"
+              placeholder="e.g., New Retailers"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddCategoryDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleAddCategory}>Add Category</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Footer */}
+      <MadeWithDyad />
     </div>
   );
 };
