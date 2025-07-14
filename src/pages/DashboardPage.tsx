@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"; // Removed the extra 'g'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +12,12 @@ import { CalendarIcon, ChevronDown, Edit, Search } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import PirateMetricsSummary from "@/components/PirateMetricsSummary";
 import { showSuccess } from "@/utils/toast"; // Import toast utility
 import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
 import StoreDetailsDialog from "@/components/StoreDetailsDialog"; // Import StoreDetailsDialog
+import ActivationFunnelChart from "@/components/ActivationFunnelChart"; // Import ActivationFunnelChart
 
 interface Store {
   id: string;
@@ -92,15 +93,19 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleEditClick = () => {
-    showSuccess("Edit action triggered!");
+    // This will be handled by AlertDialog now
   };
 
   const handleBanUser = (storeName: string) => {
-    showSuccess(`Banning user for ${storeName}...`);
+    showSuccess(`User for ${storeName} has been banned.`);
   };
 
   const handleGiveCredits = (storeName: string) => {
     showSuccess(`Giving free credits to ${storeName}...`);
+  };
+
+  const handleAddCompare = () => {
+    showSuccess("Add compare functionality coming soon!");
   };
 
   return (
@@ -131,19 +136,14 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Navigation and Filters */}
-      <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
-        <div className="flex flex-wrap gap-2">
-          <Tabs defaultValue="all" className="w-full lg:w-auto">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-2 h-auto">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="search">
-                <div className="flex items-center gap-2">
-                  <Search className="h-4 w-4" />
-                  Search anything
-                </div>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-2 w-full lg:w-auto">
+          <Input
+            type="text"
+            placeholder="Search anything..."
+            className="w-full md:w-[300px] pl-8"
+            icon={<Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />}
+          />
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
@@ -169,7 +169,7 @@ const DashboardPage: React.FC = () => {
               />
             </PopoverContent>
           </Popover>
-          <Button variant="outline" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={handleAddCompare}>
             <span className="mr-1">+</span> Add compare
           </Button>
         </div>
@@ -177,6 +177,9 @@ const DashboardPage: React.FC = () => {
 
       {/* Pirate Metrics Summary */}
       <PirateMetricsSummary />
+
+      {/* Activation Funnel Chart */}
+      <ActivationFunnelChart />
 
       {/* Category Section */}
       <Card className="bg-card border-border shadow-lg">
@@ -188,27 +191,43 @@ const DashboardPage: React.FC = () => {
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="flex items-center gap-1" onClick={handleEditClick}>
-              <Edit className="h-4 w-4" /> Edit
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-1">
+                  <Edit className="h-4 w-4" /> Edit
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Edit Store Categories</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This feature is under development. You will be able to edit store categories here soon.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Close</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => showSuccess("Edit functionality will be available soon!")}>Confirm</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px]">Store Category / Store</TableHead>
-                <TableHead>Total Stores</TableHead>
-                <TableHead>GMV</TableHead>
-                <TableHead>Conversion Rate</TableHead>
-                <TableHead>MRR</TableHead>
-                <TableHead>Subscription Status</TableHead>
-                <TableHead>Last Login</TableHead>
-                <TableHead>Daily Logins</TableHead>
-                <TableHead>Weekly Logins</TableHead>
-                <TableHead>Exports Scheduled</TableHead>
-                <TableHead>Avg. Login Freq.</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="w-[150px]">Store Category / Store</TableHead> {/* Adjusted width */}
+                <TableHead className="w-[100px]">Total Stores</TableHead>
+                <TableHead className="w-[100px]">GMV</TableHead>
+                <TableHead className="w-[120px]">Conversion Rate</TableHead>
+                <TableHead className="w-[100px]">MRR</TableHead>
+                <TableHead className="w-[150px]">Subscription Status</TableHead>
+                <TableHead className="w-[120px]">Last Login</TableHead>
+                <TableHead className="w-[100px]">Daily Logins</TableHead>
+                <TableHead className="w-[100px]">Weekly Logins</TableHead>
+                <TableHead className="w-[120px]">Exports Scheduled</TableHead>
+                <TableHead className="w-[120px]">Avg. Login Freq.</TableHead>
+                <TableHead className="text-right w-[150px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -217,7 +236,7 @@ const DashboardPage: React.FC = () => {
                   <Collapsible
                     open={openCategories[category.id]}
                     onOpenChange={() => toggleCategory(category.id)}
-                    className="contents" // This makes the Collapsible not render an extra div, allowing TableRow to be direct child of TableBody
+                    className="contents"
                   >
                     <TableRow className="hover:bg-muted/50 cursor-pointer">
                       <TableCell className="font-medium">
@@ -230,35 +249,35 @@ const DashboardPage: React.FC = () => {
                       </TableCell>
                       <TableCell>{category.totalStores}</TableCell>
                       <TableCell>₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
-                      <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
+                      <TableCell>N/A</TableCell>
                       <TableCell>₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
                       <TableCell>
                         <Badge variant="secondary">Total {category.totalStores}</Badge>
                       </TableCell>
-                      <TableCell>N/A</TableCell> {/* For Last Login */}
-                      <TableCell>N/A</TableCell> {/* For Daily Logins */}
-                      <TableCell>N/A</TableCell> {/* For Weekly Logins */}
-                      <TableCell>N/A</TableCell> {/* For Exports Scheduled */}
-                      <TableCell>N/A</TableCell> {/* For Avg. Login Freq. */}
-                      <TableCell className="text-right"></TableCell> {/* Empty for Actions */}
+                      <TableCell>N/A</TableCell>
+                      <TableCell>N/A</TableCell>
+                      <TableCell>N/A</TableCell>
+                      <TableCell>N/A</TableCell>
+                      <TableCell>N/A</TableCell>
+                      <TableCell className="text-right"></TableCell>
                     </TableRow>
                     <CollapsibleContent asChild>
                       <TableRow>
-                        <TableCell colSpan={12} className="p-0"> {/* colSpan should match total columns */}
+                        <TableCell colSpan={12} className="p-0">
                           <Table className="w-full">
                             <TableBody>
                               {category.stores.map((store) => (
                                 <TableRow key={store.id} className="bg-muted/20">
-                                  <TableCell className="pl-8">
+                                  <TableCell className="pl-8 w-[150px]"> {/* Match parent column width */}
                                     <Button variant="link" onClick={() => handleStoreClick(store)} className="p-0 h-auto text-left">
                                       {store.name}
                                     </Button>
                                   </TableCell>
-                                  <TableCell></TableCell> {/* Empty for Total Stores */}
-                                  <TableCell>₹{store.gmv.toLocaleString()}</TableCell>
-                                  <TableCell>{store.conversionRate}</TableCell>
-                                  <TableCell>{store.mrr}</TableCell>
-                                  <TableCell>
+                                  <TableCell className="w-[100px]"></TableCell> {/* Empty for Total Stores */}
+                                  <TableCell className="w-[100px]">₹{store.gmv.toLocaleString()}</TableCell>
+                                  <TableCell className="w-[120px]">{store.conversionRate}</TableCell>
+                                  <TableCell className="w-[100px]">{store.mrr}</TableCell>
+                                  <TableCell className="w-[150px]">
                                     <Badge
                                       variant={
                                         store.subscriptionStatus === "Active"
@@ -276,13 +295,29 @@ const DashboardPage: React.FC = () => {
                                       {store.subscriptionStatus}
                                     </Badge>
                                   </TableCell>
-                                  <TableCell>{store.lastLogin}</TableCell>
-                                  <TableCell>{store.dailyLogins}</TableCell>
-                                  <TableCell>{store.weeklyLogins}</TableCell>
-                                  <TableCell>{store.exportsScheduled}</TableCell>
-                                  <TableCell>{store.avgLoginFrequency}</TableCell>
-                                  <TableCell className="text-right">
-                                    <Button variant="outline" size="sm" className="mr-2" onClick={() => handleBanUser(store.name)}>Ban</Button>
+                                  <TableCell className="w-[120px]">{store.lastLogin}</TableCell>
+                                  <TableCell className="w-[100px]">{store.dailyLogins}</TableCell>
+                                  <TableCell className="w-[100px]">{store.weeklyLogins}</TableCell>
+                                  <TableCell className="w-[120px]">{store.exportsScheduled}</TableCell>
+                                  <TableCell className="w-[120px]">{store.avgLoginFrequency}</TableCell>
+                                  <TableCell className="text-right w-[150px]">
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild>
+                                        <Button variant="outline" size="sm" className="mr-2">Ban</Button>
+                                      </AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                          <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently ban {store.name} from accessing the platform.
+                                          </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleBanUser(store.name)}>Continue</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
                                     <Button size="sm" onClick={() => handleGiveCredits(store.name)}>Credits</Button>
                                   </TableCell>
                                 </TableRow>

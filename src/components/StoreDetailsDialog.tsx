@@ -35,21 +35,25 @@ const StoreDetailsDialog: React.FC<StoreDetailsDialogProps> = ({ store, isOpen, 
         <DialogHeader>
           <DialogTitle>{store.name} Details</DialogTitle>
           <DialogDescription>
-            Comprehensive information about {store.name}.
+            Key administrative and activity details for {store.name}.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="gmv" className="text-right">GMV:</Label>
-            <span id="gmv" className="col-span-1">₹{store.gmv.toLocaleString()}</span>
+            <Label htmlFor="adminEmail" className="text-right">Admin Email:</Label>
+            <span id="adminEmail" className="col-span-1">{store.adminEmail}</span>
           </div>
           <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="mrr" className="text-right">MRR:</Label>
-            <span id="mrr" className="col-span-1">{store.mrr}</span>
+            <Label htmlFor="adminPhone" className="text-right">Admin Phone:</Label>
+            <span id="adminPhone" className="col-span-1">{store.adminPhone}</span>
           </div>
           <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="status" className="text-right">Subscription Status:</Label>
-            <span id="status" className="col-span-1">{store.subscriptionStatus}</span>
+            <Label htmlFor="staffAccounts" className="text-right">Staff Accounts:</Label>
+            <span id="staffAccounts" className="col-span-1">{store.staffAccounts}</span>
+          </div>
+          <div className="grid grid-cols-2 items-center gap-4">
+            <Label htmlFor="exportsScheduled" className="text-right">Exports Scheduled:</Label>
+            <span id="exportsScheduled" className="col-span-1">{store.exportsScheduled}</span>
           </div>
           <div className="grid grid-cols-2 items-center gap-4">
             <Label htmlFor="lastLogin" className="text-right">Last Login:</Label>
@@ -62,22 +66,6 @@ const StoreDetailsDialog: React.FC<StoreDetailsDialogProps> = ({ store, isOpen, 
           <div className="grid grid-cols-2 items-center gap-4">
             <Label htmlFor="weeklyLogins" className="text-right">Weekly Logins:</Label>
             <span id="weeklyLogins" className="col-span-1">{store.weeklyLogins}</span>
-          </div>
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="avgLoginFrequency" className="text-right">Avg. Login Freq.:</Label>
-            <span id="avgLoginFrequency" className="col-span-1">{store.avgLoginFrequency}</span>
-          </div>
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="staffAccounts" className="text-right">Staff Accounts:</Label>
-            <span id="staffAccounts" className="col-span-1">{store.staffAccounts}</span>
-          </div>
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="adminPhone" className="text-right">Admin Phone:</Label>
-            <span id="adminPhone" className="col-span-1">{store.adminPhone}</span>
-          </div>
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="adminEmail" className="text-right">Admin Email:</Label>
-            <span id="adminEmail" className="col-span-1">{store.adminEmail}</span>
           </div>
         </div>
         <DialogFooter>
