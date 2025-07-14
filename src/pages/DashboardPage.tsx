@@ -164,37 +164,14 @@ const DashboardPage: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-0">Super Admin Dashboard</h1>
         <div className="flex items-center gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 px-4 py-2 rounded-full">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="User Avatar" />
-                  <AvatarFallback>BS</AvatarFallback>
-                </Avatar>
-                Bitcheer Store
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Store 1</DropdownMenuItem>
-              <DropdownMenuItem>Store 2</DropdownMenuItem>
-              <DropdownMenuItem>Store 3</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Removed DropdownMenu for store selection */}
           <ThemeToggle /> {/* Dark mode toggle */}
         </div>
       </div>
 
       {/* Navigation and Filters */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-2 w-full lg:w-auto">
-          <Input
-            type="text"
-            placeholder="Search anything..."
-            className="w-full md:w-[300px] pl-8"
-            icon={<Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />}
-          />
-        </div>
+        {/* Removed Search Input */}
 
         <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
           <Popover open={isPrimaryCalendarOpen} onOpenChange={setIsPrimaryCalendarOpen}>

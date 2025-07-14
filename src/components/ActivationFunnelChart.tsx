@@ -42,8 +42,11 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
 
   // Calculate the height for each segment, tapering down
   const funnelSegments = currentData.map((item, index) => {
-    const topHeight = (item.value / currentData[0].value) * maxHeight;
-    const bottomHeight = (index < currentData.length - 1 ? (currentData[index + 1].value / currentData[0].value) * maxHeight : topHeight);
+    const currentTopValue = item.value;
+    const nextValue = index < currentData.length - 1 ? currentData[index + 1].value : item.value; // If last segment, next value is current value
+
+    const topHeight = (currentTopValue / currentData[0].value) * maxHeight;
+    const bottomHeight = (nextValue / currentData[0].value) * maxHeight;
     
     return {
       ...item,
@@ -82,12 +85,15 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
           <svg width="100%" height="100%" viewBox={`0 0 ${totalWidth} ${maxHeight + 50}`}> {/* Adjusted viewBox */}
             <g transform={`translate(0, ${(maxHeight + 50 - maxHeight) / 2})`}> {/* Center the funnel vertically */}
               {funnelSegments.map((segment, index) => {
-                const y1 = (maxHeight - segment.topHeight) / 2;
-                const y2 = (maxHeight + segment.topHeight) / 2;
-                const y3 = (maxHeight + segment.bottomHeight) / 2;
-                const y4 = (maxHeight - segment.bottomHeight) / 2;
+                const y1 = (maxHeight - segment.topHeight) / 2; // Top-left Y
+                const y2 = (maxHeight + segment.topHeight) / 2; // Bottom-left Y
+                const y4 = (maxHeight - segment.bottomHeight) / 2; // Top-right Y
+                const y3 = (maxHeight + segment.bottomHeight) / 2; // Bottom-right Y
                 const x1 = segment.x;
                 const x2 = segment.x + segment.width;
+
+                // Calculate vertical center for text within the segment
+                const segmentCenterY = (y1 + y2 + y3 + y4) / 4;
 
                 return (
                   <React.Fragment key={segment.name}>
@@ -103,20 +109,20 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
                     />
                     <text
                       x={segment.x + segment.width / 2}
-                      y={y1 - 10} // Position text above the segment
+                      y={segmentCenterY - 10} // Position name slightly above center
                       textAnchor="middle"
-                      dominantBaseline="auto" // Adjust dominantBaseline
-                      fill="hsl(var(--foreground))" // Use foreground color for better contrast
+                      dominantBaseline="middle"
+                      fill="hsl(var(--primary-foreground))" // Use foreground color for better contrast
                       className="text-xs font-semibold pointer-events-none" // Smaller font size
                     >
                       {segment.name}
                     </text>
                     <text
                       x={segment.x + segment.width / 2}
-                      y={y1 + 5} // Position value slightly below name
+                      y={segmentCenterY + 10} // Position value slightly below center
                       textAnchor="middle"
-                      dominantBaseline="hanging"
-                      fill="hsl(var(--foreground))"
+                      dominantBaseline="middle"
+                      fill="hsl(var(--primary-foreground))"
                       className="text-sm font-bold pointer-events-none" // Slightly larger for value
                     >
                       ({segment.value})
