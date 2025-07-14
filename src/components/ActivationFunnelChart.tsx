@@ -8,11 +8,20 @@ interface FunnelData {
   value: number;
 }
 
-const data: FunnelData[] = [
+// Base dummy data
+const baseData: FunnelData[] = [
   { name: 'Signed Up', value: 1500 },
   { name: 'Shopify Integrated', value: 1100 },
   { name: 'Meta Ads Integrated', value: 900 },
   { name: 'Shiprocket Integrated', value: 700 },
+];
+
+// Dummy data for comparison (slightly different values)
+const compareBaseData: FunnelData[] = [
+  { name: 'Signed Up', value: 1300 },
+  { name: 'Shopify Integrated', value: 950 },
+  { name: 'Meta Ads Integrated', value: 750 },
+  { name: 'Shiprocket Integrated', value: 600 },
 ];
 
 interface ActivationFunnelChartProps {
@@ -21,20 +30,19 @@ interface ActivationFunnelChartProps {
 }
 
 const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange, compareDateRange }) => {
-  // In a real application, you would use dateRange and compareDateRange
-  // to fetch and filter the actual funnel data from your backend.
-  // For now, we are using static dummy data.
-  console.log("Funnel Chart - Primary Date Range:", dateRange);
-  console.log("Funnel Chart - Compare Date Range:", compareDateRange);
+  // Determine which data to use based on whether a comparison range is selected
+  // In a real application, this is where you'd fetch and process actual data
+  // based on dateRange and compareDateRange.
+  const currentData = compareDateRange?.from && compareDateRange.to ? compareBaseData : baseData;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const value = payload[0].value;
-      const currentIndex = data.findIndex(item => item.name === label);
+      const currentIndex = currentData.findIndex(item => item.name === label);
       let conversionRate = null;
-      if (currentIndex < data.length - 1) {
-        const current = data[currentIndex].value;
-        const next = data[currentIndex + 1].value;
+      if (currentIndex < currentData.length - 1) {
+        const current = currentData[currentIndex].value;
+        const next = currentData[currentIndex + 1].value;
         conversionRate = ((next / current) * 100).toFixed(1);
       }
 
@@ -50,13 +58,13 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
   };
 
   const totalHeight = 300; // Height of the chart area
-  const segmentHeight = totalHeight / data.length;
+  const segmentHeight = totalHeight / currentData.length;
   const maxWidth = 300; // Max width for the widest part of the funnel
 
   // Calculate the width for each segment, tapering down
-  const funnelSegments = data.map((item, index) => {
-    const topWidth = (item.value / data[0].value) * maxWidth;
-    const bottomWidth = (index < data.length - 1 ? (data[index + 1].value / data[0].value) * maxWidth : topWidth); // Last segment's bottom width is its top width
+  const funnelSegments = currentData.map((item, index) => {
+    const topWidth = (item.value / currentData[0].value) * maxWidth;
+    const bottomWidth = (index < currentData.length - 1 ? (currentData[index + 1].value / currentData[0].value) * maxWidth : topWidth); // Last segment's bottom width is its top width
     
     return {
       ...item,
