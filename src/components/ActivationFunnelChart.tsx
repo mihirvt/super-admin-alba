@@ -30,8 +30,9 @@ interface ActivationFunnelChartProps {
 }
 
 const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange, compareDateRange }) => {
-  // Use compareData if a comparison range is selected, otherwise use baseData
+  // Determine which data to use based on whether a comparison range is selected
   const currentData = compareDateRange?.from && compareDateRange.to ? compareData : baseData;
+  const isComparing = !!(compareDateRange?.from && compareDateRange.to);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -73,6 +74,9 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
     };
   });
 
+  // Determine fill color based on comparison state
+  const fillColor = isComparing ? "hsl(var(--accent))" : "hsl(var(--primary))";
+
   return (
     <Card className="bg-card border-border shadow-lg mb-8">
       <CardHeader>
@@ -98,7 +102,7 @@ const ActivationFunnelChart: React.FC<ActivationFunnelChartProps> = ({ dateRange
                     <React.Fragment key={segment.name}>
                       <path
                         d={`M ${x1} ${y1} L ${x2} ${y4} L ${x2} ${y3} L ${x1} ${y2} Z`}
-                        fill="hsl(var(--primary))"
+                        fill={fillColor} // Dynamic fill color
                         opacity={1 - (index * 0.1)} // Slight opacity change for depth
                       />
                       <text
