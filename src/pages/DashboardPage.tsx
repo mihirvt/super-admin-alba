@@ -13,14 +13,16 @@ import { CalendarIcon, ChevronDown, Edit, Search, Upload } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PirateMetricsSummary from "@/components/PirateMetricsSummary";
+import { showSuccess } from "@/utils/toast"; // Import toast utility
 
 interface Store {
   id: string;
   name: string;
-  orderVolume: number;
-  deliveredRevenue: string;
-  walletBalance: string;
-  subscriptionStatus: 'Free Trial' | 'Active' | 'Active Daily';
+  gmv: number; // Gross Merchandise Value
+  conversionRate: string; // e.g., "2.5%"
+  mrr: string; // Monthly Recurring Revenue
+  subscriptionStatus: 'Free Trial' | 'Active' | 'Active Daily' | 'Churned';
 }
 
 interface StoreCategory {
@@ -33,29 +35,30 @@ interface StoreCategory {
 const dummyStoreCategories: StoreCategory[] = [
   {
     id: "d2c",
-    name: "D2C brand",
+    name: "D2C Brands",
     totalStores: 10,
     stores: [
-      { id: "d2c-1", name: "D2C Store A", orderVolume: 1500, deliveredRevenue: "85.2%", walletBalance: "₹5,000", subscriptionStatus: "Active" },
-      { id: "d2c-2", name: "D2C Store B", orderVolume: 3500, deliveredRevenue: "92.1%", walletBalance: "₹15,245", subscriptionStatus: "Active Daily" },
+      { id: "d2c-1", name: "Fashion Nova", gmv: 150000, conversionRate: "3.2%", mrr: "₹5,000", subscriptionStatus: "Active" },
+      { id: "d2c-2", name: "Beauty Bliss", gmv: 35000, conversionRate: "2.8%", mrr: "₹1,500", subscriptionStatus: "Active Daily" },
+      { id: "d2c-3", name: "Home Decor Hub", gmv: 80000, conversionRate: "4.1%", mrr: "₹3,000", subscriptionStatus: "Active" },
     ],
   },
   {
-    id: "children-toys",
-    name: "Children toys",
+    id: "omni-channel",
+    name: "Omni-Channel Retailers",
     totalStores: 5,
     stores: [
-      { id: "ct-1", name: "Toy Store X", orderVolume: 1200, deliveredRevenue: "96.65%", walletBalance: "₹10,000", subscriptionStatus: "Active" },
-      { id: "ct-2", name: "Kids Play Y", orderVolume: 1200, deliveredRevenue: "90.0%", walletBalance: "₹10,245", subscriptionStatus: "Free Trial" },
+      { id: "oc-1", name: "Global Gadgets", gmv: 200000, conversionRate: "1.5%", mrr: "₹8,000", subscriptionStatus: "Active" },
+      { id: "oc-2", name: "Urban Outfitters", gmv: 75000, conversionRate: "2.0%", mrr: "₹2,500", subscriptionStatus: "Free Trial" },
     ],
   },
   {
-    id: "baby-niche",
-    name: "Baby niche",
+    id: "dropshippers",
+    name: "Dropshippers",
     totalStores: 5,
     stores: [
-      { id: "bn-1", name: "Baby Essentials", orderVolume: 1300, deliveredRevenue: "12.85%", walletBalance: "₹10,000", subscriptionStatus: "Active Daily" },
-      { id: "bn-2", name: "Infant Care", orderVolume: 1300, deliveredRevenue: "75.0%", walletBalance: "₹10,245", subscriptionStatus: "Active" },
+      { id: "ds-1", name: "Trendy Finds", gmv: 12000, conversionRate: "1.8%", mrr: "₹500", subscriptionStatus: "Active Daily" },
+      { id: "ds-2", name: "Niche Nook", gmv: 8000, conversionRate: "2.1%", mrr: "₹300", subscriptionStatus: "Churned" },
     ],
   },
 ];
@@ -71,11 +74,23 @@ const DashboardPage: React.FC = () => {
     }));
   };
 
+  const handleStoreClick = (storeName: string) => {
+    showSuccess(`Navigating to ${storeName} details...`);
+  };
+
+  const handleEditClick = () => {
+    showSuccess("Edit action triggered!");
+  };
+
+  const handleExportClick = () => {
+    showSuccess("Export action triggered!");
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 md:p-8 lg:p-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-0">Acquisition & Attribution</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4 md:mb-0">Super Admin Dashboard</h1>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2 px-4 py-2 rounded-full">
@@ -99,10 +114,8 @@ const DashboardPage: React.FC = () => {
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
         <div className="flex flex-wrap gap-2">
           <Tabs defaultValue="all" className="w-full lg:w-auto">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 lg:grid-cols-4 h-auto">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-2 lg:grid-cols-2 h-auto">
               <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="segments">Segments</TabsTrigger>
-              <TabsTrigger value="acquisition">Acquisition</TabsTrigger>
               <TabsTrigger value="search">
                 <div className="flex items-center gap-2">
                   <Search className="h-4 w-4" />
@@ -142,20 +155,23 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Pirate Metrics Summary */}
+      <PirateMetricsSummary />
+
       {/* Category Section */}
       <Card className="bg-card border-border shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div>
-            <CardTitle className="text-2xl font-semibold">Category</CardTitle>
+            <CardTitle className="text-2xl font-semibold">Store Categories</CardTitle>
             <CardDescription className="text-muted-foreground">
-              See your active workforce and make changes
+              Overview of onboarded stores by category and their key metrics.
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="flex items-center gap-1">
+            <Button variant="outline" className="flex items-center gap-1" onClick={handleEditClick}>
               <Edit className="h-4 w-4" /> Edit
             </Button>
-            <Button className="flex items-center gap-1">
+            <Button className="flex items-center gap-1" onClick={handleExportClick}>
               <Upload className="h-4 w-4" /> Export
             </Button>
           </div>
@@ -164,11 +180,11 @@ const DashboardPage: React.FC = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px]">Company & Stores</TableHead>
-                <TableHead>Total Store</TableHead>
-                <TableHead>Order Volume</TableHead>
-                <TableHead>% Delivered Revenue</TableHead>
-                <TableHead>Wallet Balance</TableHead>
+                <TableHead className="w-[200px]">Store Category / Store</TableHead>
+                <TableHead>Total Stores</TableHead>
+                <TableHead>GMV</TableHead>
+                <TableHead>Conversion Rate</TableHead>
+                <TableHead>MRR</TableHead>
                 <TableHead>Subscription Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -192,11 +208,15 @@ const DashboardPage: React.FC = () => {
                               <TableBody>
                                 {category.stores.map((store) => (
                                   <TableRow key={store.id} className="bg-muted/20">
-                                    <TableCell className="pl-0">{store.name}</TableCell>
+                                    <TableCell className="pl-0">
+                                      <Button variant="link" onClick={() => handleStoreClick(store.name)} className="p-0 h-auto text-left">
+                                        {store.name}
+                                      </Button>
+                                    </TableCell>
                                     <TableCell></TableCell> {/* Empty for individual store */}
-                                    <TableCell>{store.orderVolume}</TableCell>
-                                    <TableCell>{store.deliveredRevenue}</TableCell>
-                                    <TableCell>{store.walletBalance}</TableCell>
+                                    <TableCell>₹{store.gmv.toLocaleString()}</TableCell>
+                                    <TableCell>{store.conversionRate}</TableCell>
+                                    <TableCell>{store.mrr}</TableCell>
                                     <TableCell>
                                       <Badge
                                         variant={
@@ -208,7 +228,8 @@ const DashboardPage: React.FC = () => {
                                         }
                                         className={cn(
                                           store.subscriptionStatus === "Active Daily" && "bg-yellow-600 text-white hover:bg-yellow-700",
-                                          store.subscriptionStatus === "Free Trial" && "bg-gray-500 text-white hover:bg-gray-600"
+                                          store.subscriptionStatus === "Free Trial" && "bg-gray-500 text-white hover:bg-gray-600",
+                                          store.subscriptionStatus === "Churned" && "bg-red-600 text-white hover:bg-red-700"
                                         )}
                                       >
                                         {store.subscriptionStatus}
@@ -223,9 +244,9 @@ const DashboardPage: React.FC = () => {
                       </Collapsible>
                     </TableCell>
                     <TableCell>{category.totalStores}</TableCell>
-                    <TableCell>{category.stores.reduce((sum, store) => sum + store.orderVolume, 0)}</TableCell>
+                    <TableCell>₹{category.stores.reduce((sum, store) => sum + store.gmv, 0).toLocaleString()}</TableCell>
                     <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
-                    <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
+                    <TableCell>₹{category.stores.reduce((sum, store) => sum + parseFloat(store.mrr.replace('₹', '').replace(',', '')), 0).toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">Total {category.totalStores}</Badge>
                     </TableCell>
