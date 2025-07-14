@@ -175,55 +175,61 @@ const DashboardPage: React.FC = () => {
             <TableBody>
               {dummyStoreCategories.map((category) => (
                 <React.Fragment key={category.id}>
-                  <Collapsible
-                    asChild
-                    open={openCategories[category.id]}
-                    onOpenChange={() => toggleCategory(category.id)}
-                  >
-                    <TableRow className="hover:bg-muted/50 cursor-pointer">
-                      <TableCell className="font-medium">
-                        <CollapsibleTrigger className="flex items-center gap-2">
+                  <TableRow className="hover:bg-muted/50 cursor-pointer">
+                    <TableCell className="font-medium">
+                      <Collapsible
+                        open={openCategories[category.id]}
+                        onOpenChange={() => toggleCategory(category.id)}
+                        className="w-full"
+                      >
+                        <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2">
                           <ChevronDown className={cn("h-4 w-4 transition-transform", openCategories[category.id] && "rotate-180")} />
                           {category.name}
                         </CollapsibleTrigger>
-                      </TableCell>
-                      <TableCell>{category.totalStores}</TableCell>
-                      <TableCell>{category.stores.reduce((sum, store) => sum + store.orderVolume, 0)}</TableCell>
-                      <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
-                      <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
-                      <TableCell>
-                        <Badge variant="secondary">Total {category.totalStores}</Badge>
-                      </TableCell>
-                    </TableRow>
-                  </Collapsible>
-                  <CollapsibleContent asChild>
-                    {openCategories[category.id] && category.stores.map((store) => (
-                      <TableRow key={store.id} className="bg-muted/20">
-                        <TableCell className="pl-8">{store.name}</TableCell>
-                        <TableCell></TableCell> {/* Empty for individual store */}
-                        <TableCell>{store.orderVolume}</TableCell>
-                        <TableCell>{store.deliveredRevenue}</TableCell>
-                        <TableCell>{store.walletBalance}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              store.subscriptionStatus === "Active"
-                                ? "default"
-                                : store.subscriptionStatus === "Active Daily"
-                                ? "secondary"
-                                : "outline"
-                            }
-                            className={cn(
-                              store.subscriptionStatus === "Active Daily" && "bg-yellow-600 text-white hover:bg-yellow-700",
-                              store.subscriptionStatus === "Free Trial" && "bg-gray-500 text-white hover:bg-gray-600"
-                            )}
-                          >
-                            {store.subscriptionStatus}
-                          </Badge>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </CollapsibleContent>
+                        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                          <div className="pl-8">
+                            <Table>
+                              <TableBody>
+                                {category.stores.map((store) => (
+                                  <TableRow key={store.id} className="bg-muted/20">
+                                    <TableCell className="pl-0">{store.name}</TableCell>
+                                    <TableCell></TableCell> {/* Empty for individual store */}
+                                    <TableCell>{store.orderVolume}</TableCell>
+                                    <TableCell>{store.deliveredRevenue}</TableCell>
+                                    <TableCell>{store.walletBalance}</TableCell>
+                                    <TableCell>
+                                      <Badge
+                                        variant={
+                                          store.subscriptionStatus === "Active"
+                                            ? "default"
+                                            : store.subscriptionStatus === "Active Daily"
+                                            ? "secondary"
+                                            : "outline"
+                                        }
+                                        className={cn(
+                                          store.subscriptionStatus === "Active Daily" && "bg-yellow-600 text-white hover:bg-yellow-700",
+                                          store.subscriptionStatus === "Free Trial" && "bg-gray-500 text-white hover:bg-gray-600"
+                                        )}
+                                      >
+                                        {store.subscriptionStatus}
+                                      </Badge>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </TableCell>
+                    <TableCell>{category.totalStores}</TableCell>
+                    <TableCell>{category.stores.reduce((sum, store) => sum + store.orderVolume, 0)}</TableCell>
+                    <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
+                    <TableCell>N/A</TableCell> {/* Aggregated value not directly from image, so N/A for category */}
+                    <TableCell>
+                      <Badge variant="secondary">Total {category.totalStores}</Badge>
+                    </TableCell>
+                  </TableRow>
                 </React.Fragment>
               ))}
             </TableBody>
