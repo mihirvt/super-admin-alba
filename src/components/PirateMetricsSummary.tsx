@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, Repeat, Share2, TrendingUp, ShoppingCart, Facebook, Truck, Activity } from "lucide-react";
+import { DollarSign, Users, Repeat, TrendingUp, ShoppingCart, Facebook, Truck, Activity, Clock } from "lucide-react";
 
 interface MetricCardProps {
   title: string;
@@ -44,12 +44,6 @@ const PirateMetricsSummary: React.FC = () => {
         icon={<Repeat className="h-4 w-4 text-muted-foreground" />}
       />
       <MetricCard
-        title="Referral"
-        value="150 Referrals"
-        description="+10% from last month"
-        icon={<Share2 className="h-4 w-4 text-muted-foreground" />}
-      />
-      <MetricCard
         title="Revenue"
         value="₹450,000 MRR"
         description="+15% from last month"
@@ -84,6 +78,18 @@ const PirateMetricsSummary: React.FC = () => {
         value="800 Stores"
         description="65% of total stores"
         icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+      />
+      <MetricCard
+        title="Daily Logins"
+        value="1,200"
+        description="Avg. 1.5 logins/store"
+        icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+      />
+      <MetricCard
+        title="Weekly Logins"
+        value="7,500"
+        description="Avg. 9.3 logins/store"
+        icon={<Clock className="h-4 w-4 text-muted-foreground" />}
       />
     </div>
   );
