@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, Users, Repeat, TrendingUp, ShoppingCart, Facebook, Truck, Activity, Clock } from "lucide-react";
+import { DateRange } from "react-day-picker"; // Import DateRange type
 
 interface MetricCardProps {
   title: string;
@@ -22,7 +23,16 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, description, icon
   </Card>
 );
 
-const PirateMetricsSummary: React.FC = () => {
+interface PirateMetricsSummaryProps {
+  dateRange: DateRange | undefined;
+  compareDateRange: DateRange | undefined;
+}
+
+const PirateMetricsSummary: React.FC<PirateMetricsSummaryProps> = ({ dateRange, compareDateRange }) => {
+  // Frontend is now ready to receive date ranges for comparison.
+  // A developer can use dateRange and compareDateRange here to fetch/filter actual data.
+  // For now, the dummy data remains static.
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 mb-8">
       <MetricCard

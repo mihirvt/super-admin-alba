@@ -19,6 +19,7 @@ import { ThemeToggle } from "@/components/ThemeToggle"; // Import ThemeToggle
 import StoreDetailsDialog from "@/components/StoreDetailsDialog"; // Import StoreDetailsDialog
 import ActivationFunnelChart from "@/components/ActivationFunnelChart"; // Import ActivationFunnelChart
 import AddCreditsDialog from "@/components/AddCreditsDialog"; // Import AddCreditsDialog
+import { DateRange } from "react-day-picker"; // Import DateRange type
 
 interface Store {
   id: string;
@@ -77,8 +78,11 @@ const initialDummyStoreCategories: StoreCategory[] = [
 ];
 
 const DashboardPage: React.FC = () => {
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
-  const [compareDate, setCompareDate] = React.useState<Date | undefined>(undefined);
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+    from: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+    to: new Date(),
+  });
+  const [compareDateRange, setCompareDateRange] = React.useState<DateRange | undefined>(undefined);
   const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>({});
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
   const [selectedStore, setSelectedStore] = React.useState<Store | null>(null);
@@ -199,20 +203,33 @@ const DashboardPage: React.FC = () => {
                 variant={"outline"}
                 className={cn(
                   "w-full sm:w-[280px] justify-start text-left font-normal",
-                  !date && "text-muted-foreground"
+                  !dateRange?.from && "text-muted-foreground"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "LLL dd, y")} -{" "}
+                      {format(dateRange.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
               <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(selectedDate) => {
-                  setDate(selectedDate);
-                  setIsPrimaryCalendarOpen(false); // Close popover on select
+                mode="range"
+                selected={dateRange}
+                onSelect={(range) => {
+                  setDateRange(range);
+                  if (range?.from && range?.to) {
+                    setIsPrimaryCalendarOpen(false);
+                  }
                 }}
                 initialFocus
                 toDate={new Date()} // Restrict to current date
@@ -223,19 +240,32 @@ const DashboardPage: React.FC = () => {
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full sm:w-auto">
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {compareDate ? format(compareDate, "PPP") : <span>Add compare</span>}
+                {compareDateRange?.from ? (
+                  compareDateRange.to ? (
+                    <>
+                      {format(compareDateRange.from, "LLL dd, y")} -{" "}
+                      {format(compareDateRange.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(compareDateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Add compare</span>
+                )}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">
               <Calendar
-                mode="single"
-                selected={compareDate}
-                onSelect={(selectedDate) => {
-                  setCompareDate(selectedDate);
-                  setIsCompareCalendarOpen(false); // Close popover on select
+                mode="range"
+                selected={compareDateRange}
+                onSelect={(range) => {
+                  setCompareDateRange(range);
+                  if (range?.from && range?.to) {
+                    setIsCompareCalendarOpen(false);
+                  }
                 }}
                 initialFocus
-                toDate={date || new Date()} // Restrict to primary date or current date
+                toDate={dateRange?.from || new Date()} // Restrict to primary date range start or current date
               />
             </PopoverContent>
           </Popover>
@@ -243,7 +273,7 @@ const DashboardPage: React.FC = () => {
       </div>
 
       {/* Pirate Metrics Summary */}
-      <PirateMetricsSummary />
+      <PirateMetricsSummary dateRange={dateRange} compareDateRange={compareDateRange} />
 
       {/* Activation Funnel Chart */}
       <ActivationFunnelChart />
@@ -307,7 +337,7 @@ const DashboardPage: React.FC = () => {
                     className="contents"
                   >
                     <TableRow className="hover:bg-muted/50 cursor-pointer">
-                      <TableCell className="font-medium">
+                      <TableCell className="font-medium w-[150px]">
                         <CollapsibleTrigger asChild>
                           <Button variant="ghost" className="flex items-center gap-2 w-full justify-start text-left py-2 px-0">
                             <ChevronDown className={cn("h-4 w-4 transition-transform", openCategories[category.id] && "rotate-180")} />

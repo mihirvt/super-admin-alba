@@ -28,15 +28,13 @@ const StoreDetailsDialog: React.FC<StoreDetailsDialogProps> = ({ store, isOpen, 
             Key administrative details for {store.name}.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="adminEmail" className="text-right">Admin Email:</Label>
-            <span id="adminEmail" className="col-span-1">{store.adminEmail}</span>
-          </div>
-          <div className="grid grid-cols-2 items-center gap-4">
-            <Label htmlFor="adminPhone" className="text-right">Admin Phone:</Label>
-            <span id="adminPhone" className="col-span-1">{store.adminPhone}</span>
-          </div>
+        <div className="grid grid-cols-3 items-center gap-4 py-4"> {/* Changed to 3 columns for better label/value alignment */}
+          <Label htmlFor="adminEmail" className="col-span-1 text-right">Admin Email:</Label>
+          <span id="adminEmail" className="col-span-2 text-left">{store.adminEmail}</span>
+        </div>
+        <div className="grid grid-cols-3 items-center gap-4">
+          <Label htmlFor="adminPhone" className="col-span-1 text-right">Admin Phone:</Label>
+          <span id="adminPhone" className="col-span-2 text-left">{store.adminPhone}</span>
         </div>
         <DialogFooter>
           <Button onClick={onClose}>Close</Button>
